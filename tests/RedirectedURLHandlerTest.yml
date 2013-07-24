@@ -1,0 +1,13 @@
+RedirectedURL:
+    redirect-signups:
+        FromBase: /signups
+        To: /site-info/log-in/
+    redirect-with-query:
+        FromBase: /query-test-with-query-string
+        FromQueryString: foo=bar
+        To: /query-test-foo
+    redirect-with-longer-query:
+        FromBase: /query-test-with-query-string
+        FromQueryString: "foo=bar&baz=qux"
+        
+        
