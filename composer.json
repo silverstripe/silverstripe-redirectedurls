@@ -1,5 +1,5 @@
 {
-	"name": "science-ninjas/redirectedurls",
+	"name": "silverstripe/redirectedurls",
 	"description": "Provides a system for users to configure arbitrary redirections in the CMS",
 	"license": "BSD-3-Clause",
 	"type": "silverstripe-module",
