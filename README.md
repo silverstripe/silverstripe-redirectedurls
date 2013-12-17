@@ -2,7 +2,9 @@ Redirected URLs
 ===============
 
 **Author:** Sam Minnée
-**Author:** Stig Lundqvist
+
+**Author:** Stig Lindqvist
+
 **Author:** Russ Michell
 
 
