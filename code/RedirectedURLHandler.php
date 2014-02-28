@@ -31,7 +31,7 @@ class RedirectedURLHandler extends Extension {
 	/**
 	 * @throws SS_HTTPResponse_Exception
 	 */
-	protected function onBeforeHTTPError404($request) {
+	public function onBeforeHTTPError404($request) {
 		$base = strtolower($request->getURL());
 
 		$getVars = $this->arrayToLowercase($request->getVars());
