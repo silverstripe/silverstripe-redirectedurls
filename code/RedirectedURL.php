@@ -8,6 +8,8 @@
  */
 class RedirectedURL extends DataObject {
 
+	private static $singular_name = 'Redirected URL';
+
 	private static $db = array(
 		'FromBase' => 'Varchar(255)',
 		'FromQuerystring' => 'Varchar(255)',
