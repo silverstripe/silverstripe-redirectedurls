@@ -6,7 +6,7 @@
  * @author sam@silverstripe.com
  * @author scienceninjas@silverstripe.com
  */
-class RedirectedURL extends DataObject {
+class RedirectedURL extends DataObject implements PermissionProvider {
 
 	private static $singular_name = 'Redirected URL';
 
@@ -89,4 +89,38 @@ class RedirectedURL extends DataObject {
 
  		return DataObject::get_one("RedirectedURL", "\"FromBase\" = '$SQL_base' $qsClause");
 	}
+
+	public function providePermissions() {
+		return array(
+			'REDIRECTEDURLS_CREATE' => array(
+				'name'     => 'Create a redirect',
+				'category' => 'Redirects'
+			),
+			'REDIRECTEDURLS_EDIT'   => array(
+				'name'     => 'Edit a redirect',
+				'category' => 'Redirects',
+			),
+			'REDIRECTEDURLS_DELETE' => array(
+				'name'     => 'Delete a redirect',
+				'category' => 'Redirects',
+			)
+		);
+	}
+
+	public function canView() {
+		return true;
+	}
+
+	public function canCreate() {
+		return Permission::check('REDIRECTEDURLS_CREATE');
+	}
+
+	public function canEdit() {
+		return Permission::check('REDIRECTEDURLS_EDIT');
+	}
+
+	public function canDelete() {
+		return Permission::check('REDIRECTEDURLS_DELETE');
+	}
+
 }
