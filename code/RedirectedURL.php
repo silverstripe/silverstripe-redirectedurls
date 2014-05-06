@@ -122,19 +122,19 @@ class RedirectedURL extends DataObject implements PermissionProvider {
 		);
 	}
 
-	public function canView() {
+	public function canView($member = null) {
 		return true;
 	}
 
-	public function canCreate() {
+	public function canCreate($member = null) {
 		return Permission::check('REDIRECTEDURLS_CREATE');
 	}
 
-	public function canEdit() {
+	public function canEdit($member = null) {
 		return Permission::check('REDIRECTEDURLS_EDIT');
 	}
 
-	public function canDelete() {
+	public function canDelete($member = null) {
 		return Permission::check('REDIRECTEDURLS_DELETE');
 	}
 
