@@ -10,6 +10,7 @@ class RedirectedURLAdmin extends ModelAdmin {
 
 	private static $url_segment = 'redirects';
 	private static $menu_title = 'Redirects';
+	private static $menu_icon = 'redirectedurls/images/redirects.png';
 
 	private static $managed_models = array(
 		'RedirectedURL',
