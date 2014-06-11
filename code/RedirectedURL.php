@@ -84,7 +84,7 @@ class RedirectedURL extends DataObject implements PermissionProvider {
 	 * @param string $from The From URL to search
 	 * @return DataObject {@link: RedirectedURL}
 	 */
-	protected function findByFrom($from) {
+	public function findByFrom($from) {
 		if($from[0] != '/') $from = "/$from";
 		$from = rtrim($from,'?');
 
