@@ -37,11 +37,11 @@ Usage
  5. Complete the 'To' field which is the URL you wish to redirect traffic to if any traffic from. For example "/about-us".
  6. Create a new Redirection for each URL mapping you need to redirect.
 
-For example, to redirect "/about-us/index.html?foo=1" to "/about-us/foo/", set:
+For example, to redirect "/about-us/index.html?item=1" to "/about-us/item/1", set:
 
-	From Base: /about-us/index.html
-	From Querystring: item=1
-	To: /about-us/item/1
+	From Base:  /about-us/index.html
+	From Querystring:  item=1
+	To:  /about-us/item/1
 
 Importing
 ---------
@@ -54,5 +54,5 @@ CSV Importer, example file format:
 
 	FromBase, FromQuerystring, To
 	/about-us/index.html, item=1, /about/item/1
-	/example/two/queryparams.html, foo=1&bar=1, /look-ma/foo/bar
-	/example/no/querystring.html, ,/look-ma/no-querystring/
+	/example/no-querystring.html, ,/example/no-querystring/
+	/example/two-queryparams.html, foo=1&bar=2, /example/foo/1/bar/2
