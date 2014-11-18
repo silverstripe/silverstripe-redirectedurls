@@ -8,19 +8,36 @@
  */
 class RedirectedURLAdmin extends ModelAdmin {
 
+	/**
+	 * @var string
+	 */
 	private static $url_segment = 'redirects';
+
+	/**
+	 * @var string
+	 */
 	private static $menu_title = 'Redirects';
+
+	/**
+	 * @var string
+	 */
 	private static $menu_icon = 'redirectedurls/images/redirects.png';
 
+	/**
+	 * @var array
+	 */
 	private static $managed_models = array(
-		'RedirectedURL',
+		'RedirectedURL'
 	);
 
-	public function init() {
-		parent::init();
-		Requirements::javascript('mysite/javascript/AdminCenterColumnWide.js');
-	}
-
+	/**
+	 * Overridden to add duplicate checking to the bulkloader to prevent
+	 * multiple records with the same 'FromBase' value.
+	 *
+	 * Duplicates are found via callback to {@link: RedirectedURL.findByForm}.
+	 *
+	 * @return array Map of model class names to importer instances
+	 */
 	public function getModelImporters() {
 		$importer = new CsvBulkLoader("RedirectedURL");
 		$importer->duplicateChecks = array(
