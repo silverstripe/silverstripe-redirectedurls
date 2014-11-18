@@ -35,6 +35,21 @@ class RedirectedURL extends DataObject implements PermissionProvider {
 		'To',
 	);
 
+	public function getCMSFields() {
+		$fields = parent::getCMSFields();
+
+		$fromBaseField = $fields->fieldByName('Root.Main.FromBase');
+		$fromBaseField->setDescription('e.g. /about-us.html');
+
+		$fromQueryStringField = $fields->fieldByName('Root.Main.FromQuerystring');
+		$fromQueryStringField->setDescription('e.g. page=1&num=5');
+
+		$toField = $fields->fieldByName('Root.Main.To');
+		$toField->setDescription('e.g. /about?something=5');
+
+		return $fields;
+	}
+
 	public function setFrom($val) {
 		if(strpos($val,'?') !== false) {
 			list($base, $querystring) = explode('?', $val, 2);
