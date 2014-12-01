@@ -42,14 +42,33 @@ class RedirectedURLHandler extends Extension {
 		$SQL_base = Convert::raw2sql(rtrim($base, '/'));
 
 		$potentials = DataObject::get("RedirectedURL", "\"FromBase\" = '/" . $SQL_base . "'", "\"FromQuerystring\" ASC");
-
+		$listPotentials = new ArrayList; 
+		foreach  ($potentials as $potential){ 
+			$listPotentials->push($potential);
+		}
+		
+		// Find any matching FromBase elements terminating in a wildcard /*
+		$baseparts = explode('/', $base); 
+		for ($pos = count($baseparts) - 1; $pos >= 0; $pos--){
+			$basestr = implode('/', array_slice($baseparts, 0, $pos));
+			$basepart = Convert::raw2sql($basestr . '/*');
+			$basepots = DataObject::get("RedirectedURL", "\"FromBase\" = '/" . $basepart . "'", "\"FromQuerystring\" ASC");
+			foreach ($basepots as $basepot){
+				if (substr($basepot->To, -2) === '/*'){					
+					$basepot->To = substr($basepot->To, 0, -2) . substr($base, strlen($basestr));
+				}
+				$listPotentials->push($basepot);
+			}
+		}	
+		
 		$matched = null;
 
 		// Then check the get vars, ignoring any additional get vars that
 		// this URL may have
-		if($potentials) {
-			foreach($potentials as $potential) {
-				$allVarsMatch = true;
+		if($listPotentials) {
+			foreach($listPotentials as $potential) {
+				//$potential = $potobj->model;
+				$allVarsMatch = true;		
 
 				if($potential->FromQuerystring) {
 					$reqVars = array();
