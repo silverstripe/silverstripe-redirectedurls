@@ -67,7 +67,6 @@ class RedirectedURLHandler extends Extension {
 		// this URL may have
 		if($listPotentials) {
 			foreach($listPotentials as $potential) {
-				//$potential = $potobj->model;
 				$allVarsMatch = true;		
 
 				if($potential->FromQuerystring) {
