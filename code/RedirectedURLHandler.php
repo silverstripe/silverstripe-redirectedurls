@@ -54,6 +54,7 @@ class RedirectedURLHandler extends Extension {
 			$basepart = Convert::raw2sql($basestr . '/*');
 			$basepots = DataObject::get("RedirectedURL", "\"FromBase\" = '/" . $basepart . "'", "\"FromQuerystring\" ASC");
 			foreach ($basepots as $basepot){
+                // If the To URL ends in a wildcard /*, append the remaining request URL elements
 				if (substr($basepot->To, -2) === '/*'){					
 					$basepot->To = substr($basepot->To, 0, -2) . substr($base, strlen($basestr));
 				}
