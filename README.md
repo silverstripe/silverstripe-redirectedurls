@@ -32,10 +32,12 @@ Usage
 -----
  1. Click 'Redirects' in the main menu of the CMS.
  2. Click 'Add Redirected URL' to create a mapping of an old URL to a new URL on your SilverStripe website.
- 3. Enter a 'From Base' which is the relative URL from your old website (not including the domain name). For example, "/about-us.html".
- 4. Alternatively, depending on your old websites URL structure you can redirect based on a query string using the combination of 'From Base' and 'From Querystring' fields.
- 5. Complete the 'To' field which is the URL you wish to redirect traffic to if any traffic from. For example "/about-us".
- 6. Create a new Redirection for each URL mapping you need to redirect.
+ 3. Enter a 'From Base' which is the URL from your old website (not including the domain name). For example, "/about-us.html".
+ 4. Alternatively, depending on your old websites URL structure you can redirect based on a query string using the combination of 'From Base' and 'From Querystring' fields. For exmaple, "index.html" as the base and "page=about-us" as the query string.
+ 5. As a further alternative, you can include a trailing '/*' for a wildcard match to any file with the same stem. For example, "/about/*".
+ 6. Complete the 'To' field which is the URL you wish to redirect traffic to if any traffic from. For example, "/about-us".
+ 7. Alternatively you can terminate the 'To' field with '/*' to redirect to the specific file requested by the user. For example, "/new-about/*". Note that if this specific file is not in the target directory tree, the 404 error will be handled by the target site.
+ 8. Create a new Redirection for each URL mapping you need to redirect.
 
 For example, to redirect "/about-us/index.html?item=1" to "/about-us/item/1", set:
 
@@ -56,3 +58,4 @@ CSV Importer, example file format:
 	/about-us/index.html, item=1, /about/item/1
 	/example/no-querystring.html, ,/example/no-querystring/
 	/example/two-queryparams.html, foo=1&bar=2, /example/foo/1/bar/2
+	/about/*, ,/about-us
