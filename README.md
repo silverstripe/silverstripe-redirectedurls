@@ -1,6 +1,8 @@
 Redirected URLs
 ===============
 
+[![Build Status](https://travis-ci.org/silverstripe-labs/silverstripe-redirectedurls.svg?branch=master)](https://travis-ci.org/silverstripe-labs/silverstripe-redirectedurls)
+
 **Author:** Sam Minnée
 
 **Author:** Stig Lindqvist
