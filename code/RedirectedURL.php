@@ -69,6 +69,7 @@ class RedirectedURL extends DataObject implements PermissionProvider {
 
 	public function setFromBase($val) {
 		if($val[0] != '/') $val = "/$val";
+		if($val != '/') $val = rtrim($val,'/');
 		$val = rtrim($val,'?');
 		$this->setField('FromBase', strtolower($val));
 	}
@@ -77,6 +78,13 @@ class RedirectedURL extends DataObject implements PermissionProvider {
 		$val = rtrim($val,'?');
 		$this->setField('FromQuerystring', strtolower($val));
 	}
+	
+	public function setTo($val) {
+		$val = rtrim($val,'?');
+		if($val != '/') $val = rtrim($val,'/');
+		$this->setField('To', strtolower($val));
+	}
+
 
 	/**
 	 * Helper for bulkloader {@link: RedirectedURLAdmin.getModelImporters}
