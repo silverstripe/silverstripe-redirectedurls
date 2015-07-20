@@ -1,4 +1,6 @@
-language: php 
+language: php
+
+sudo: false
 
 php: 
  - 5.3
@@ -18,7 +20,7 @@ matrix:
       env: DB=PGSQL CORE_RELEASE=3.1
 
 before_script:
- - composer self-update
+ - composer self-update || true
  - phpenv rehash
  - git clone git://github.com/silverstripe-labs/silverstripe-travis-support.git ~/travis-support
  - php ~/travis-support/travis_setup.php --source `pwd` --target ~/builds/ss
