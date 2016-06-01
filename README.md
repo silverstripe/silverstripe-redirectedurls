@@ -60,4 +60,4 @@ CSV Importer, example file format:
 	/about-us/index.html, item=1, /about/item/1
 	/example/no-querystring.html, ,/example/no-querystring/
 	/example/two-queryparams.html, foo=1&bar=2, /example/foo/1/bar/2
-	/about/\*, ,/about-us
+	/about/*, ,/about-us
