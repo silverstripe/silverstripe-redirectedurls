@@ -23,7 +23,7 @@ class RedirectedURLHandler extends Extension {
 
 		foreach($vars as $k => $v) {
 			if(is_array($v)) {
-				$result[strtolower($k)] = $this->arrayToLowercase(strtolower($v));
+				$result[strtolower($k)] = $this->arrayToLowercase($v);
 			} else {
 			    $result[strtolower($k)] = strtolower($v);
             }
