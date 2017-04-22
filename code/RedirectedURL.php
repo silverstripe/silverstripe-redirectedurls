@@ -1,4 +1,12 @@
 <?php
+
+use SilverStripe\Core\Convert;
+use SilverStripe\Dev\Backtrace;
+use SilverStripe\Dev\Debug;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\Security\Permission;
+use SilverStripe\Security\PermissionProvider;
+
 /**
  * Specifies one URL redirection
  *
@@ -6,7 +14,9 @@
  * @author sam@silverstripe.com
  * @author scienceninjas@silverstripe.com
  */
-class RedirectedURL extends DataObject implements PermissionProvider {
+
+class RedirectedURL extends DataObject implements PermissionProvider
+{
 
 	private static $singular_name = 'Redirected URL';
 
@@ -35,7 +45,18 @@ class RedirectedURL extends DataObject implements PermissionProvider {
 		'To',
 	);
 
-	public function getCMSFields() {
+	public function getCSVExportFields()
+	{
+	    return array(
+            'FromBase',
+            'FromQuerystring',
+            'To'
+        );
+	}
+
+
+	public function getCMSFields()
+    {
 		$fields = parent::getCMSFields();
 
 		$fromBaseField = $fields->fieldByName('Root.Main.FromBase');
@@ -50,7 +71,8 @@ class RedirectedURL extends DataObject implements PermissionProvider {
 		return $fields;
 	}
 
-	public function setFrom($val) {
+	public function setFrom($val)
+    {
 		if(strpos($val,'?') !== false) {
 			list($base, $querystring) = explode('?', $val, 2);
 		} else {
@@ -61,30 +83,53 @@ class RedirectedURL extends DataObject implements PermissionProvider {
 		$this->setFromQuerystring($querystring);
 	}
 
-	public function getFrom() {
+	public function getFrom()
+    {
 		$url = $this->FromBase;
 		if($this->FromQuerystring) $url .= "?" . $this->FromQuerystring;
 		return $url;
 	}
 
-	public function setFromBase($val) {
+	public function setFromBase($val)
+    {
 		if($val[0] != '/') $val = "/$val";
 		if($val != '/') $val = rtrim($val,'/');
 		$val = rtrim($val,'?');
 		$this->setField('FromBase', strtolower($val));
 	}
 
-	public function setFromQuerystring($val) {
+	public function setFromQuerystring($val)
+    {
 		$val = rtrim($val,'?');
 		$this->setField('FromQuerystring', strtolower($val));
 	}
 	
-	public function setTo($val) {
+	public function setTo($val)
+    {
 		$val = rtrim($val,'?');
 		if($val != '/') $val = rtrim($val,'/');
 		$this->setField('To', strtolower($val));
 	}
 
+	// Ensure the a URL can't be included twice
+	public function validate()
+	{
+	    $validation = parent::validate();
+
+        $does_exist = RedirectedURL::get()
+            ->filter(array(
+                'FromBase' => $this->FromBase,
+                'FromQuerystring' => $this->FromQuerystring ?: null
+            ))
+            ->exclude('ID', $this->ID)
+            ->count() > 0 ? TRUE : FALSE;
+
+        if($does_exist) {
+            $validation->addError('Can\'t have duplicate URLs, please use unique ones');
+        }
+
+	    return $validation;
+	}
 
 	/**
 	 * Helper for bulkloader {@link: RedirectedURLAdmin.getModelImporters}
@@ -92,7 +137,8 @@ class RedirectedURL extends DataObject implements PermissionProvider {
 	 * @param string $from The From URL to search
 	 * @return DataObject {@link: RedirectedURL}
 	 */
-	public function findByFrom($from) {
+	public function findByFrom($from)
+    {
 		if($from[0] != '/') $from = "/$from";
 		$from = rtrim($from,'?');
 
@@ -113,7 +159,8 @@ class RedirectedURL extends DataObject implements PermissionProvider {
  		return DataObject::get_one("RedirectedURL", "\"FromBase\" = '$SQL_base' $qsClause");
 	}
 
-	public function providePermissions() {
+	public function providePermissions()
+    {
 		return array(
 			'REDIRECTEDURLS_CREATE' => array(
 				'name'     => 'Create a redirect',
@@ -130,19 +177,27 @@ class RedirectedURL extends DataObject implements PermissionProvider {
 		);
 	}
 
-	public function canView($member = null) {
+	public function canView($member = null)
+    {
 		return true;
 	}
 
-	public function canCreate($member = null) {
+	public function canCreate($member = null, $context = array())
+    {
+        $extended = $this->extendedCan(__FUNCTION__, $member, $context);
+        if ($extended !== null) {
+            return $extended;
+        }
 		return Permission::check('REDIRECTEDURLS_CREATE');
 	}
 
-	public function canEdit($member = null) {
+	public function canEdit($member = null)
+    {
 		return Permission::check('REDIRECTEDURLS_EDIT');
 	}
 
-	public function canDelete($member = null) {
+	public function canDelete($member = null)
+    {
 		return Permission::check('REDIRECTEDURLS_DELETE');
 	}
 
