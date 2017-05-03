@@ -110,7 +110,7 @@ class RedirectedURL extends DataObject implements PermissionProvider {
 		if($querystring) $qsClause = "AND \"FromQuerystring\" = '$SQL_querystring'";
 		else $qsClause = "AND \"FromQuerystring\" IS NULL";
 
- 		return DataObject::get_one("RedirectedURL", "\"FromBase\" = '$SQL_base' $qsClause");
+ 		return RedirectedURL::get()->where("\"FromBase\" = '$SQL_base' $qsClause")->limit(1)->first();
 	}
 
 	public function providePermissions() {
