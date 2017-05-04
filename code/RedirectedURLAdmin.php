@@ -58,7 +58,8 @@ class RedirectedURLAdmin extends ModelAdmin {
 	 */
 	public function getExportFields() {
 		$fields = array();
-		foreach(singleton($this->modelClass)->db() as $field => $spec) {
+		$modelStaticFields = singleton($this->modelClass)->stat('db');
+		foreach($modelStaticFields as $field => $spec) {
 			$fields[$field] = $field;
 		}
 		return $fields;
