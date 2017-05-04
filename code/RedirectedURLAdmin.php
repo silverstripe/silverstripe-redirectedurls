@@ -1,4 +1,7 @@
 <?php
+use SilverStripe\Admin\ModelAdmin;
+use SilverStripe\Dev\CsvBulkLoader;
+
 /**
  * Provides CMS Administration of {@link: RedirectedURL} objects
  *
@@ -6,7 +9,8 @@
  * @author sam@silverstripe.com
  * @author scienceninjas@silverstripe.com
  */
-class RedirectedURLAdmin extends ModelAdmin {
+class RedirectedURLAdmin extends ModelAdmin
+{
 
 	/**
 	 * @var string
@@ -38,7 +42,8 @@ class RedirectedURLAdmin extends ModelAdmin {
 	 *
 	 * @return array Map of model class names to importer instances
 	 */
-	public function getModelImporters() {
+	public function getModelImporters()
+    {
 		$importer = new CsvBulkLoader("RedirectedURL");
 		$importer->duplicateChecks = array(
 			'FromBase' => array('callback' => 'findByFrom'),
@@ -49,18 +54,15 @@ class RedirectedURLAdmin extends ModelAdmin {
 	}
 
 	/**
-	 * Overriden so that the CSV column headings have the exact field names of the DataObject
+	 * Overridden so that the CSV column headings have the exact field names of the DataObject
 	 *
 	 * To prevent field name conversion in DataObject::summaryFields() during export
 	 * e.g. 'FromBase' is output as 'From Base'
 	 *
 	 * @return array
 	 */
-	public function getExportFields() {
-		$fields = array();
-		foreach(singleton($this->modelClass)->db() as $field => $spec) {
-			$fields[$field] = $field;
-		}
-		return $fields;
+	public function getExportFields()
+    {
+		return singleton($this->modelClass)->getCSVExportFields();
 	}
 }
