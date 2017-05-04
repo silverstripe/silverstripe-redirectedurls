@@ -1,7 +1,11 @@
 Redirected URLs
 ===============
 
-[![Build Status](https://travis-ci.org/silverstripe-labs/silverstripe-redirectedurls.svg?branch=master)](https://travis-ci.org/silverstripe-labs/silverstripe-redirectedurls)
+[![Build Status](https://travis-ci.org/silverstripe/silverstripe-redirectedurls.svg?branch=master)](https://travis-ci.org/silverstripe/silverstripe-redirectedurls)
+[![Latest Stable Version](https://poser.pugx.org/silverstripe/redirectedurls/version)](https://packagist.org/packages/silverstripe/redirectedurls)
+[![License](https://poser.pugx.org/silverstripe/redirectedurls/license)](https://packagist.org/packages/silverstripe/redirectedurls)
+[![Monthly Downloads](https://poser.pugx.org/silverstripe/redirectedurls/d/monthly)](https://packagist.org/packages/silverstripe/redirectedurls)
+
 
 **Author:** Sam Minnée
 
