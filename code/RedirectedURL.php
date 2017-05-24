@@ -80,8 +80,8 @@ class RedirectedURL extends DataObject implements PermissionProvider {
 	}
 	
 	public function setTo($val) {
-		$val = rtrim($val,'?');
-		if($val != '/') $val = rtrim($val,'/');
+		//$val = rtrim($val,'?');
+		//if($val != '/') $val = rtrim($val,'/');
 		$this->setField('To', strtolower($val));
 	}
 
