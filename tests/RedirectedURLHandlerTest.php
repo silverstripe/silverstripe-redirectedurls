@@ -5,16 +5,28 @@
  * @subpackage tests
  */
 class RedirectedURLHandlerTest extends FunctionalTest {
-	
-	static $fixture_file = 'redirectedurls/tests/RedirectedURLHandlerTest.yml';
-	
-	function setUp() {
+
+	protected static $fixture_file = 'redirectedurls/tests/RedirectedURLHandlerTest.yml';
+
+	public function setUp() {
 		parent::setUp();
 		
 		$this->autoFollowRedirection = false;
 	}
-	
-	function testHandleURLRedirectionFromBase() {
+
+	public function testHanldeRootRedirectWithExtension() {
+		$redirect = $this->objFromFixture('RedirectedURL', 'redirect-root-extension');
+
+		$response = $this->get($redirect->FromBase);
+		$this->assertEquals(301, $response->getStatusCode());
+
+		$this->assertEquals(
+			Director::absoluteURL($redirect->To),
+			$response->getHeader('Location')
+		);
+	}
+
+	public function testHandleURLRedirectionFromBase() {
 		$redirect = $this->objFromFixture('RedirectedURL', 'redirect-signups');
 		
 		$response = $this->get($redirect->FromBase);
@@ -25,8 +37,8 @@ class RedirectedURLHandlerTest extends FunctionalTest {
 			$response->getHeader('Location')
 		);
 	}
-	
-	function testHandleURLRedirectionWithQueryString() {
+
+	public function testHandleURLRedirectionWithQueryString() {
 		$response = $this->get('query-test-with-query-string?foo=bar');
 		$expected = $this->objFromFixture('RedirectedURL', 'redirect-with-query');
 		
@@ -36,8 +48,8 @@ class RedirectedURLHandlerTest extends FunctionalTest {
 			$response->getHeader('Location')
 		);
 	}
-	
-	function testArrayToLowercase() {
+
+	public function testArrayToLowercase() {
 		$array = array('Foo' => 'bar', 'baz' => 'QUX');
 		
 		$cont = new RedirectedURLHandler();
