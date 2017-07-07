@@ -24,7 +24,7 @@ class RedirectedURLAdmin extends ModelAdmin {
 	/**
 	 * @var string
 	 */
-	//private static $menu_icon = 'redirectedurls/images/redirects.png';
+	private static $menu_icon_class = 'font-icon-switch';
 
 	/**
 	 * @var array
