@@ -1,4 +1,13 @@
 <?php
+
+namespace SilverStripe\RedirectedURLs;
+
+use SilverStripe\Core\Convert;
+use SilverStripe\Security\Permission;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\Security\PermissionProvider;
+
+
 /**
  * Specifies one URL redirection
  *
@@ -9,31 +18,32 @@
 class RedirectedURL extends DataObject implements PermissionProvider {
 
 	private static $singular_name = 'Redirected URL';
+    private static $table_name = 'RedirectedURL';
 
-	private static $db = array(
+	private static $db = [
 		'FromBase' => 'Varchar(255)',
 		'FromQuerystring' => 'Varchar(255)',
 		'To' => 'Varchar(255)',
-	);
+	];
 
-	private static $indexes = array(
-		'From' => array(
+	private static $indexes = [
+		'From' => [
 			'type' => 'unique',
-			'value' => '"FromBase","FromQuerystring"',
-		)
-	);
+			'columns' => ['FromBase','FromQuerystring']
+		]
+	];
 
-	private static $summary_fields = array(
+	private static $summary_fields = [
 		'FromBase' => 'From URL base',
 		'FromQuerystring' => 'From URL query parameters',
 		'To' => 'To URL',
-	);
+	];
 
-	private static $searchable_fields = array(
+	private static $searchable_fields = [
 		'FromBase',
 		'FromQuerystring',
 		'To',
-	);
+	];
 
 	public function getCMSFields() {
 		$fields = parent::getCMSFields();
@@ -123,19 +133,19 @@ class RedirectedURL extends DataObject implements PermissionProvider {
 		);
 	}
 
-	public function canView($member = null) {
+	public function canView($member = null, $context = []) {
 		return true;
 	}
 
-	public function canCreate($member = null) {
+	public function canCreate($member = null, $context = []) {
 		return Permission::check('REDIRECTEDURLS_CREATE');
 	}
 
-	public function canEdit($member = null) {
+	public function canEdit($member = null, $context = []) {
 		return Permission::check('REDIRECTEDURLS_EDIT');
 	}
 
-	public function canDelete($member = null) {
+	public function canDelete($member = null, $context = []) {
 		return Permission::check('REDIRECTEDURLS_DELETE');
 	}
 

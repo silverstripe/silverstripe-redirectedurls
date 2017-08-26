@@ -1,4 +1,11 @@
 <?php
+
+namespace SilverStripe\RedirectedURLs;
+
+use SilverStripe\Dev\CsvBulkLoader;
+use SilverStripe\Admin\ModelAdmin;
+
+
 /**
  * Provides CMS Administration of {@link: RedirectedURL} objects
  *
@@ -21,13 +28,13 @@ class RedirectedURLAdmin extends ModelAdmin {
 	/**
 	 * @var string
 	 */
-	private static $menu_icon = 'redirectedurls/images/redirects.png';
+	private static $menu_icon = 'redirectedurls/images/redirect.svg';
 
 	/**
 	 * @var array
 	 */
 	private static $managed_models = array(
-		'RedirectedURL'
+		RedirectedURL::class
 	);
 
 	/**
@@ -39,7 +46,7 @@ class RedirectedURLAdmin extends ModelAdmin {
 	 * @return array Map of model class names to importer instances
 	 */
 	public function getModelImporters() {
-		$importer = new CsvBulkLoader("RedirectedURL");
+		$importer = new CsvBulkLoader(RedirectedURL::class);
 		$importer->duplicateChecks = array(
 			'FromBase' => array('callback' => 'findByFrom'),
 		);
@@ -49,7 +56,7 @@ class RedirectedURLAdmin extends ModelAdmin {
 	}
 
 	/**
-	 * Overriden so that the CSV column headings have the exact field names of the DataObject
+	 * Overridden so that the CSV column headings have the exact field names of the DataObject
 	 *
 	 * To prevent field name conversion in DataObject::summaryFields() during export
 	 * e.g. 'FromBase' is output as 'From Base'
@@ -58,7 +65,12 @@ class RedirectedURLAdmin extends ModelAdmin {
 	 */
 	public function getExportFields() {
 		$fields = array();
-		foreach(singleton($this->modelClass)->db() as $field => $spec) {
+
+		$obj = singleton($this->modelClass);
+		$schema = $obj::getSchema();
+		$dbFields = $schema->fieldSpecs($this->modelClass);
+
+		foreach($dbFields as $field => $spec) {
 			$fields[$field] = $field;
 		}
 		return $fields;

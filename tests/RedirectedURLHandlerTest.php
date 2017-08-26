@@ -1,5 +1,13 @@
 <?php
 
+namespace SilverStripe\RedirectedURLs;
+
+use ReflectionMethod;
+use SilverStripe\Control\Director;
+use SilverStripe\Dev\FunctionalTest;
+
+
+
 /**
  * @package redirectedurls
  * @subpackage tests
@@ -14,8 +22,8 @@ class RedirectedURLHandlerTest extends FunctionalTest {
 		$this->autoFollowRedirection = false;
 	}
 
-	public function testHanldeRootRedirectWithExtension() {
-		$redirect = $this->objFromFixture('RedirectedURL', 'redirect-root-extension');
+	public function testHandleRootRedirectWithExtension() {
+		$redirect = $this->objFromFixture(RedirectedURL::class, 'redirect-root-extension');
 
 		$response = $this->get($redirect->FromBase);
 		$this->assertEquals(301, $response->getStatusCode());
@@ -27,7 +35,7 @@ class RedirectedURLHandlerTest extends FunctionalTest {
 	}
 
 	public function testHandleURLRedirectionFromBase() {
-		$redirect = $this->objFromFixture('RedirectedURL', 'redirect-signups');
+		$redirect = $this->objFromFixture(RedirectedURL::class, 'redirect-signups');
 		
 		$response = $this->get($redirect->FromBase);
 		$this->assertEquals(301, $response->getStatusCode());
@@ -40,7 +48,7 @@ class RedirectedURLHandlerTest extends FunctionalTest {
 
 	public function testHandleURLRedirectionWithQueryString() {
 		$response = $this->get('query-test-with-query-string?foo=bar');
-		$expected = $this->objFromFixture('RedirectedURL', 'redirect-with-query');
+		$expected = $this->objFromFixture(RedirectedURL::class, 'redirect-with-query');
 		
 		$this->assertEquals(301, $response->getStatusCode());
 		$this->assertEquals(
@@ -54,7 +62,7 @@ class RedirectedURLHandlerTest extends FunctionalTest {
 		
 		$cont = new RedirectedURLHandler();
 
-		$arrayToLowercaseMethod = new ReflectionMethod('RedirectedURLHandler', 'arrayToLowercase');
+		$arrayToLowercaseMethod = new ReflectionMethod(RedirectedURLHandler::class, 'arrayToLowercase');
 		$arrayToLowercaseMethod->setAccessible(true);
 		
 		$this->assertEquals(

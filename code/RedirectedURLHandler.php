@@ -1,9 +1,22 @@
 <?php
+
+namespace SilverStripe\RedirectedURLs;
+
+use SilverStripe\Core\Convert;
+use SilverStripe\ORM\ArrayList;
+use SilverStripe\Control\HTTPResponse;
+use SilverStripe\Control\Director;
+use SilverStripe\Control\HTTPResponse_Exception;
+use SilverStripe\Core\Extension;
+
+
 /**
  * Handles the redirection of any url from a controller. Apply this to your controller using
  *
  * <code>
- * Controller::add_extension("Controller", "RedirectedURLHandler");
+ * Controller:
+ *   extensions:
+ *     - SilverStripe\RedirectedURLs\RedirectedURLHandler
  * </code>
  *
  * @package redirectedurls
@@ -25,15 +38,16 @@ class RedirectedURLHandler extends Extension {
 			if(is_array($v)) {
 				$result[strtolower($k)] = $this->arrayToLowercase($v);
 			} else {
-			    $result[strtolower($k)] = strtolower($v);
-            }
+				$result[strtolower($k)] = strtolower($v);
+			}
 		}
 
 		return $result;
 	}
 
 	/**
-	 * @throws SS_HTTPResponse_Exception
+	 * @param  $request
+	 * @throws HTTPResponse_Exception
 	 */
 	public function onBeforeHTTPError404($request) {
 		$base = strtolower($request->getURL());
@@ -46,33 +60,33 @@ class RedirectedURLHandler extends Extension {
 		$SQL_base = Convert::raw2sql(rtrim($base, '/'));
 
 		$potentials = RedirectedURL::get()->filter(array('FromBase' => '/' . $SQL_base))->sort('FromQuerystring ASC');
-		$listPotentials = new ArrayList; 
-		foreach  ($potentials as $potential){ 
+		$listPotentials = new ArrayList;
+		foreach  ($potentials as $potential){
 			$listPotentials->push($potential);
 		}
-		
+
 		// Find any matching FromBase elements terminating in a wildcard /*
-		$baseparts = explode('/', $base); 
+		$baseparts = explode('/', $base);
 		for ($pos = count($baseparts) - 1; $pos >= 0; $pos--){
 			$basestr = implode('/', array_slice($baseparts, 0, $pos));
 			$basepart = Convert::raw2sql($basestr . '/*');
 			$basepots = RedirectedURL::get()->filter(array('FromBase' => '/' . $basepart))->sort('FromQuerystring ASC');
 			foreach ($basepots as $basepot){
-                // If the To URL ends in a wildcard /*, append the remaining request URL elements
-				if (substr($basepot->To, -2) === '/*'){					
+				// If the To URL ends in a wildcard /*, append the remaining request URL elements
+				if (substr($basepot->To, -2) === '/*'){
 					$basepot->To = substr($basepot->To, 0, -2) . substr($base, strlen($basestr));
 				}
 				$listPotentials->push($basepot);
 			}
-		}	
-		
+		}
+
 		$matched = null;
 
 		// Then check the get vars, ignoring any additional get vars that
 		// this URL may have
 		if($listPotentials) {
 			foreach($listPotentials as $potential) {
-				$allVarsMatch = true;		
+				$allVarsMatch = true;
 
 				if($potential->FromQuerystring) {
 					$reqVars = array();
@@ -97,21 +111,21 @@ class RedirectedURLHandler extends Extension {
 
 		// If there's a match, direct!
 		if($matched) {
-			$response = new SS_HTTPResponse();
+			$response = new HTTPResponse();
 			$dest = $matched->To;
 			$response->redirect(Director::absoluteURL($dest), 301);
 
-			throw new SS_HTTPResponse_Exception($response);
+			throw new HTTPResponse_Exception($response);
 		}
 
 		// Otherwise check for default MOSS-fixing.
 		if(preg_match('/pages\/default.aspx$/i', $base)) {
 			$newBase = preg_replace('/pages\/default.aspx$/i', '', $base);
 
-			$response = new SS_HTTPResponse;
+			$response = new HTTPResponse;
 			$response->redirect(Director::absoluteURL($newBase), 301);
 
-			throw new SS_HTTPResponse_Exception($response);
+			throw new HTTPResponse_Exception($response);
 		}
 	}
 }

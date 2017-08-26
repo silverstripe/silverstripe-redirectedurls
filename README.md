@@ -24,6 +24,10 @@ admin included.
 The redirection is implemented as a plug-in to the 404 handler, which means that you can't create a
 redirection for a page that already exists on the site.
 
+Requirements
+------------
+SilverStripe 4 or higher. 
+
 Installation
 ------------
 Either:
