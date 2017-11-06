@@ -7,10 +7,10 @@ RedirectedURL:
     FromQueryString: foo=bar
     To: /query-test-foo
   redirect-with-mixed-case-url:
-    FromBase: /Query-test
+    FromBase: /Query-test-with-mixed-case-url
     To: /query-test-foo
   redirect-with-mixed-case-query:
-    FromBase: /query-test-with-query-string
+    FromBase: /query-test-with-mixed-case-query-string
     FromQueryString: Foo=bar
     To: /query-test-foo
   redirect-with-longer-query:
