@@ -6,6 +6,13 @@ RedirectedURL:
     FromBase: /query-test-with-query-string
     FromQueryString: foo=bar
     To: /query-test-foo
+  redirect-with-mixed-case-url:
+    FromBase: /Query-test
+    To: /query-test-foo
+  redirect-with-mixed-case-query:
+    FromBase: /query-test-with-query-string
+    FromQueryString: Foo=bar
+    To: /query-test-foo
   redirect-with-longer-query:
     FromBase: /query-test-with-query-string
     FromQueryString: "foo=bar&baz=qux"

@@ -39,7 +39,7 @@ class RedirectedURLHandlerTest extends FunctionalTest {
 	}
 
 	public function testHandleURLRedirectionWithQueryString() {
-		$response = $this->get('query-test-with-query-string?foo=bar');
+		$response = $this->get('uery-test-with-query-string?foo=bar');
 		$expected = $this->objFromFixture('RedirectedURL', 'redirect-with-query');
 
 		$this->assertEquals(301, $response->getStatusCode());
@@ -49,9 +49,20 @@ class RedirectedURLHandlerTest extends FunctionalTest {
 		);
 	}
 
-	public function testHandleURLRedirectionWithMixedCaseQueryString() {
+	public function testHandleMixedCaseURLRedirection() {
+		$response = $this->get('Query-test');
+		$expected = $this->objFromFixture('RedirectedURL', 'redirect-with-mixed-case-url');
+
+		$this->assertEquals(301, $response->getStatusCode());
+		$this->assertEquals(
+			Director::absoluteURL($expected->To),
+			$response->getHeader('Location')
+		);
+	}
+
+	public function testHandleURLRedirectionWithMixedCaseQuery() {
 		$response = $this->get('query-test-with-query-string?Foo=bar');
-		$expected = $this->objFromFixture('RedirectedURL', 'redirect-with-query');
+		$expected = $this->objFromFixture('RedirectedURL', 'redirect-with-mixed-case-query');
 
 		$this->assertEquals(301, $response->getStatusCode());
 		$this->assertEquals(
