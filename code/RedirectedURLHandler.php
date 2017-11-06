@@ -13,32 +13,12 @@
 class RedirectedURLHandler extends Extension {
 
 	/**
-	 * Converts an array of key value pairs to lowercase
-	 *
-	 * @param array $vars key value pairs
-	 * @return array
-	 */
-	protected function arrayToLowercase($vars) {
-		$result = array();
-
-		foreach($vars as $k => $v) {
-			if(is_array($v)) {
-				$result[strtolower($k)] = $this->arrayToLowercase($v);
-			} else {
-			    $result[strtolower($k)] = strtolower($v);
-            }
-		}
-
-		return $result;
-	}
-
-	/**
 	 * @throws SS_HTTPResponse_Exception
 	 */
 	public function onBeforeHTTPError404($request) {
-		$base = strtolower($request->getURL());
+		$base = $request->getURL();
 
-		$getVars = $this->arrayToLowercase($request->getVars());
+		$getVars = $request->getVars();
 		unset($getVars['url']);
 
 		// Find all the RedirectedURL objects where the base URL matches.
@@ -58,8 +38,8 @@ class RedirectedURLHandler extends Extension {
 			$basepart = Convert::raw2sql($basestr . '/*');
 			$basepots = RedirectedURL::get()->filter(array('FromBase' => '/' . $basepart))->sort('FromQuerystring ASC');
 			foreach ($basepots as $basepot){
-                // If the To URL ends in a wildcard /*, append the remaining request URL elements
-				if (substr($basepot->To, -2) === '/*'){					
+				// If the To URL ends in a wildcard /*, append the remaining request URL elements
+				if (substr($basepot->To, -2) === '/*'){
 					$basepot->To = substr($basepot->To, 0, -2) . substr($base, strlen($basestr));
 				}
 				$listPotentials->push($basepot);
