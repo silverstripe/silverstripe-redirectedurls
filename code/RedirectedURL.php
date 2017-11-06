@@ -71,12 +71,12 @@ class RedirectedURL extends DataObject implements PermissionProvider {
 		if($val[0] != '/') $val = "/$val";
 		if($val != '/') $val = rtrim($val,'/');
 		$val = rtrim($val,'?');
-		$this->setField('FromBase', strtolower($val));
+		$this->setField('FromBase', $val);
 	}
 
 	public function setFromQuerystring($val) {
 		$val = rtrim($val,'?');
-		$this->setField('FromQuerystring', strtolower($val));
+		$this->setField('FromQuerystring', $val);
 	}
 
 	/**

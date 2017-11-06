@@ -81,7 +81,7 @@ class RedirectedURLHandler extends Extension {
 					foreach($reqVars as $k => $v) {
 						if(!$v) continue;
 
-						if(!isset($getVars[$k]) || $v != $getVars[$k]) {
+						if(!isset($getVars[$k]) || strcasecmp($v, $getVars[$k]) !== 0) {
 							$allVarsMatch = false;
 							break;
 						}
