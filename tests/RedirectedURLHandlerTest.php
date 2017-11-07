@@ -6,7 +6,7 @@
  */
 class RedirectedURLHandlerTest extends FunctionalTest {
 
-	protected static $fixture_file = 'silverstripe-redirectedurls/tests/RedirectedURLHandlerTest.yml';
+	protected static $fixture_file = 'redirectedurls/tests/RedirectedURLHandlerTest.yml';
 
 	public function setUp() {
 		parent::setUp();
