@@ -90,7 +90,7 @@ class RedirectedURL extends DataObject implements PermissionProvider {
 		$from = rtrim($from,'?');
 
 		if(strpos($from,'?') !== false) {
-			list($base, $querystring) = explode('?', strtolower($from), 2);
+			list($base, $querystring) = explode('?', $from, 2);
 
 		} else {
 			$base = $from;
