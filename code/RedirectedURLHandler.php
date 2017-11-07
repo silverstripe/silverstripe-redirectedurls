@@ -11,15 +11,35 @@
  * @author scienceninjas@silverstripe.com
  */
 class RedirectedURLHandler extends Extension {
+	/**
+	 * Converts the case of the keys of the an array
+	 *
+	 * @param array $arr Key value pairs
+	 * @param int $c Either CASE_LOWER or CASE_UPPER
+	 * @return array
+	 */
+	protected function array_change_key_case_unicode($arr, $c = CASE_LOWER) {
+		$c = ($c == CASE_LOWER) ? MB_CASE_LOWER : MB_CASE_UPPER;
+		$ret = array();
+		foreach ($arr as $k => $v) {
+			$ret[mb_convert_case($k, $c, "UTF-8")] = $v;
+		}
+		return $ret;
+	}
 
 	/**
 	 * @throws SS_HTTPResponse_Exception
 	 */
 	public function onBeforeHTTPError404($request) {
+		$caseInsensitiveMatching = Config::inst()->get(get_class($this), 'case_insensitive_matching');
 		$base = $request->getURL();
-
 		$getVars = $request->getVars();
+
 		unset($getVars['url']);
+
+		if($caseInsensitiveMatching) {
+			$getVars = $this->array_change_key_case_unicode($getVars);
+		}
 
 		// Find all the RedirectedURL objects where the base URL matches.
 		// Assumes the base url has no trailing slash.
@@ -57,11 +77,17 @@ class RedirectedURLHandler extends Extension {
 				if($potential->FromQuerystring) {
 					$reqVars = array();
 					parse_str($potential->FromQuerystring, $reqVars);
+					if($caseInsensitiveMatching) {
+						$reqVars = $this->array_change_key_case_unicode($reqVars);
+					}
 
 					foreach($reqVars as $k => $v) {
 						if(!$v) continue;
 
-						if(!isset($getVars[$k]) || strcasecmp($v, $getVars[$k]) !== 0) {
+						if(!isset($getVars[$k]) ||
+							($caseInsensitiveMatching && strcasecmp($v, $getVars[$k]) !== 0) ||
+							(!$caseInsensitiveMatching && strcmp($v, $getVars[$k]) !== 0)
+						) {
 							$allVarsMatch = false;
 							break;
 						}

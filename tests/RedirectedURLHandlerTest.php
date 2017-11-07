@@ -6,15 +6,16 @@
  */
 class RedirectedURLHandlerTest extends FunctionalTest {
 
-	protected static $fixture_file = 'redirectedurls/tests/RedirectedURLHandlerTest.yml';
+	protected static $fixture_file = 'silverstripe-redirectedurls/tests/RedirectedURLHandlerTest.yml';
 
 	public function setUp() {
 		parent::setUp();
 		
 		$this->autoFollowRedirection = false;
+		Config::inst()->update('RedirectedURLHandler', 'case_insensitive_matching', false);
 	}
 
-	public function testHanldeRootRedirectWithExtension() {
+	public function testHandleRootRedirectWithExtension() {
 		$redirect = $this->objFromFixture('RedirectedURL', 'redirect-root-extension');
 
 		$response = $this->get($redirect->FromBase);
@@ -63,6 +64,19 @@ class RedirectedURLHandlerTest extends FunctionalTest {
 	public function testHandleURLRedirectionWithMixedCaseQuery() {
 		$response = $this->get('query-test-with-mixed-case-query-string?Foo=bar');
 		$expected = $this->objFromFixture('RedirectedURL', 'redirect-with-mixed-case-query');
+
+		$this->assertEquals(301, $response->getStatusCode());
+		$this->assertEquals(
+			Director::absoluteURL($expected->To),
+			$response->getHeader('Location')
+		);
+	}
+
+	public function testHandleURLRedirectionWithMixedCaseQueryAndCaseInsensitiveMatching() {
+		Config::inst()->update('RedirectedURLHandler', 'case_insensitive_matching', true);
+
+		$expected = $this->objFromFixture('RedirectedURL', 'redirect-with-mixed-case-query');
+		$response = $this->get('query-test-with-mixed-case-query-string?foo=bar');
 
 		$this->assertEquals(301, $response->getStatusCode());
 		$this->assertEquals(
