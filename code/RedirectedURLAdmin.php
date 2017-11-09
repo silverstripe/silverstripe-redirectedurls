@@ -6,6 +6,9 @@
  * @author sam@silverstripe.com
  * @author scienceninjas@silverstripe.com
  */
+
+use SilverStripe\Admin\ModelAdmin;
+
 class RedirectedURLAdmin extends ModelAdmin {
 
 	/**
@@ -21,7 +24,7 @@ class RedirectedURLAdmin extends ModelAdmin {
 	/**
 	 * @var string
 	 */
-	private static $menu_icon = 'redirectedurls/images/redirects.png';
+	private static $menu_icon_class = 'font-icon-switch';
 
 	/**
 	 * @var array
@@ -39,7 +42,7 @@ class RedirectedURLAdmin extends ModelAdmin {
 	 * @return array Map of model class names to importer instances
 	 */
 	public function getModelImporters() {
-		$importer = new CsvBulkLoader("RedirectedURL");
+		$importer = new SilverStripe\Dev\CsvBulkLoader("RedirectedURL");
 		$importer->duplicateChecks = array(
 			'FromBase' => array('callback' => 'findByFrom'),
 		);
@@ -58,7 +61,7 @@ class RedirectedURLAdmin extends ModelAdmin {
 	 */
 	public function getExportFields() {
 		$fields = array();
-		foreach(singleton($this->modelClass)->db() as $field => $spec) {
+		foreach(singleton($this->modelClass)->config()->db as $field => $spec) {
 			$fields[$field] = $field;
 		}
 		return $fields;

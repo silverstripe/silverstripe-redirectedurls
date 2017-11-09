@@ -6,6 +6,11 @@
  * @author sam@silverstripe.com
  * @author scienceninjas@silverstripe.com
  */
+
+use SilverStripe\ORM\DataObject;
+use SilverStripe\Security\PermissionProvider;
+use SilverStripe\Security\Permission;
+
 class RedirectedURL extends DataObject implements PermissionProvider {
 
 	private static $singular_name = 'Redirected URL';
@@ -17,7 +22,7 @@ class RedirectedURL extends DataObject implements PermissionProvider {
 	);
 
 	private static $indexes = array(
-		'From' => array(
+		'FromBase' => array(
 			'type' => 'unique',
 			'value' => '"FromBase","FromQuerystring"',
 		)
@@ -69,7 +74,6 @@ class RedirectedURL extends DataObject implements PermissionProvider {
 
 	public function setFromBase($val) {
 		if($val[0] != '/') $val = "/$val";
-		if($val != '/') $val = rtrim($val,'/');
 		$val = rtrim($val,'?');
 		$this->setField('FromBase', strtolower($val));
 	}
@@ -103,7 +107,7 @@ class RedirectedURL extends DataObject implements PermissionProvider {
 		if($querystring) $qsClause = "AND \"FromQuerystring\" = '$SQL_querystring'";
 		else $qsClause = "AND \"FromQuerystring\" IS NULL";
 
- 		return RedirectedURL::get()->where("\"FromBase\" = '$SQL_base' $qsClause")->limit(1)->first();
+ 		return DataObject::get_one("RedirectedURL", "\"FromBase\" = '$SQL_base' $qsClause");
 	}
 
 	public function providePermissions() {
@@ -127,7 +131,7 @@ class RedirectedURL extends DataObject implements PermissionProvider {
 		return true;
 	}
 
-	public function canCreate($member = null) {
+	public function canCreate($member = null, $context = array()) {
 		return Permission::check('REDIRECTEDURLS_CREATE');
 	}
 
