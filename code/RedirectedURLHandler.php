@@ -12,8 +12,8 @@
  */
 class RedirectedURLHandler extends Extension {
 	/**
-     * Whether to ignore the case of query parameters when attempting to find a RedirectedURL
-     *
+	 * Whether to ignore the case of query parameters when attempting to find a RedirectedURL
+	 *
 	 * @config
 	 * @var bool
 	 */
@@ -36,6 +36,24 @@ class RedirectedURLHandler extends Extension {
 	}
 
 	/**
+	 * Converts an array of key value pairs to lowercase
+	 *
+	 * @param array $vars key value pairs
+	 * @return array
+	 */
+	protected function arrayToLowercase($vars) {
+		$result = array();
+		foreach($vars as $k => $v) {
+			if(is_array($v)) {
+				$result[strtolower($k)] = $this->arrayToLowercase($v);
+			} else {
+				$result[strtolower($k)] = strtolower($v);
+			}
+		}
+		return $result;
+	}
+
+	/**
 	 * @throws SS_HTTPResponse_Exception
 	 */
 	public function onBeforeHTTPError404($request) {
@@ -54,13 +72,13 @@ class RedirectedURLHandler extends Extension {
 		$SQL_base = Convert::raw2sql(rtrim($base, '/'));
 
 		$potentials = RedirectedURL::get()->filter(array('FromBase' => '/' . $SQL_base))->sort('FromQuerystring ASC');
-		$listPotentials = new ArrayList; 
+		$listPotentials = new ArrayList;
 		foreach ($potentials as $potential) {
 			$listPotentials->push($potential);
 		}
-		
+
 		// Find any matching FromBase elements terminating in a wildcard /*
-		$baseparts = explode('/', $base); 
+		$baseparts = explode('/', $base);
 		for ($pos = count($baseparts) - 1; $pos >= 0; $pos--) {
 			$basestr = implode('/', array_slice($baseparts, 0, $pos));
 			$basepart = Convert::raw2sql($basestr . '/*');
@@ -72,8 +90,8 @@ class RedirectedURLHandler extends Extension {
 				}
 				$listPotentials->push($basepot);
 			}
-		}	
-		
+		}
+
 		$matched = null;
 
 		// Then check the get vars, ignoring any additional get vars that
