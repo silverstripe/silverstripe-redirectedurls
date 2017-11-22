@@ -37,7 +37,7 @@ class RedirectedURLHandler extends Extension {
 
 		unset($getVars['url']);
 
-		if($caseInsensitiveMatching) {
+		if ($caseInsensitiveMatching) {
 			$getVars = $this->array_change_key_case_unicode($getVars);
 		}
 
@@ -47,13 +47,13 @@ class RedirectedURLHandler extends Extension {
 
 		$potentials = RedirectedURL::get()->filter(array('FromBase' => '/' . $SQL_base))->sort('FromQuerystring ASC');
 		$listPotentials = new ArrayList; 
-		foreach  ($potentials as $potential){ 
+		foreach ($potentials as $potential) {
 			$listPotentials->push($potential);
 		}
 		
 		// Find any matching FromBase elements terminating in a wildcard /*
 		$baseparts = explode('/', $base); 
-		for ($pos = count($baseparts) - 1; $pos >= 0; $pos--){
+		for ($pos = count($baseparts) - 1; $pos >= 0; $pos--) {
 			$basestr = implode('/', array_slice($baseparts, 0, $pos));
 			$basepart = Convert::raw2sql($basestr . '/*');
 			$basepots = RedirectedURL::get()->filter(array('FromBase' => '/' . $basepart))->sort('FromQuerystring ASC');
@@ -70,21 +70,21 @@ class RedirectedURLHandler extends Extension {
 
 		// Then check the get vars, ignoring any additional get vars that
 		// this URL may have
-		if($listPotentials) {
-			foreach($listPotentials as $potential) {
-				$allVarsMatch = true;		
+		if ($listPotentials) {
+			foreach ($listPotentials as $potential) {
+				$allVarsMatch = true;
 
-				if($potential->FromQuerystring) {
+				if ($potential->FromQuerystring) {
 					$reqVars = array();
 					parse_str($potential->FromQuerystring, $reqVars);
-					if($caseInsensitiveMatching) {
+					if ($caseInsensitiveMatching) {
 						$reqVars = $this->array_change_key_case_unicode($reqVars);
 					}
 
-					foreach($reqVars as $k => $v) {
-						if(!$v) continue;
+					foreach ($reqVars as $k => $v) {
+						if (!$v) continue;
 
-						if(!isset($getVars[$k]) ||
+						if (!isset($getVars[$k]) ||
 							($caseInsensitiveMatching && strcasecmp($v, $getVars[$k]) !== 0) ||
 							(!$caseInsensitiveMatching && strcmp($v, $getVars[$k]) !== 0)
 						) {
@@ -94,7 +94,7 @@ class RedirectedURLHandler extends Extension {
 					}
 				}
 
-				if($allVarsMatch) {
+				if ($allVarsMatch) {
 					$matched = $potential;
 					break;
 				}
@@ -102,7 +102,7 @@ class RedirectedURLHandler extends Extension {
 		}
 
 		// If there's a match, direct!
-		if($matched) {
+		if ($matched) {
 			$response = new SS_HTTPResponse();
 			$dest = $matched->To;
 			$response->redirect(Director::absoluteURL($dest), 301);
@@ -111,7 +111,7 @@ class RedirectedURLHandler extends Extension {
 		}
 
 		// Otherwise check for default MOSS-fixing.
-		if(preg_match('/pages\/default.aspx$/i', $base)) {
+		if (preg_match('/pages\/default.aspx$/i', $base)) {
 			$newBase = preg_replace('/pages\/default.aspx$/i', '', $base);
 
 			$response = new SS_HTTPResponse;
