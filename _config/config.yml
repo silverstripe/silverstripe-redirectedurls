@@ -1,5 +1,0 @@
----
-name: silverstripe-redirectedurls
----
-RedirectedURLHandler:
-  case_insensitive_matching: false

@@ -12,6 +12,14 @@
  */
 class RedirectedURLHandler extends Extension {
 	/**
+     * Whether to ignore the case of query parameters when attempting to find a RedirectedURL
+     *
+	 * @config
+	 * @var bool
+	 */
+	private static $case_insensitive_matching = false;
+
+	/**
 	 * Converts the case of the keys of the an array
 	 *
 	 * @param array $arr Key value pairs
@@ -31,7 +39,7 @@ class RedirectedURLHandler extends Extension {
 	 * @throws SS_HTTPResponse_Exception
 	 */
 	public function onBeforeHTTPError404($request) {
-		$caseInsensitiveMatching = Config::inst()->get(get_class($this), 'case_insensitive_matching');
+		$caseInsensitiveMatching = $this->config()->get('case_insensitive_matching');
 		$base = $request->getURL();
 		$getVars = $request->getVars();
 
