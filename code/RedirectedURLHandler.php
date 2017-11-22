@@ -83,9 +83,9 @@ class RedirectedURLHandler extends Extension {
 			$basestr = implode('/', array_slice($baseparts, 0, $pos));
 			$basepart = Convert::raw2sql($basestr . '/*');
 			$basepots = RedirectedURL::get()->filter(array('FromBase' => '/' . $basepart))->sort('FromQuerystring ASC');
-			foreach ($basepots as $basepot){
+			foreach ($basepots as $basepot) {
 				// If the To URL ends in a wildcard /*, append the remaining request URL elements
-				if (substr($basepot->To, -2) === '/*'){
+				if (substr($basepot->To, -2) === '/*') {
 					$basepot->To = substr($basepot->To, 0, -2) . substr($base, strlen($basestr));
 				}
 				$listPotentials->push($basepot);
