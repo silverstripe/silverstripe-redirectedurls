@@ -57,7 +57,7 @@ class RedirectedURLHandler extends Extension {
 	 * @throws SS_HTTPResponse_Exception
 	 */
 	public function onBeforeHTTPError404($request) {
-		$caseInsensitiveMatching = $this->config()->get('case_insensitive_matching');
+		$caseInsensitiveMatching = Config::inst()->get(get_class($this), 'case_insensitive_matching');
 		$base = $request->getURL();
 		$getVars = $request->getVars();
 
