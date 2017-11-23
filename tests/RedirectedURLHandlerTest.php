@@ -62,6 +62,7 @@ class RedirectedURLHandlerTest extends FunctionalTest {
 	}
 
 	public function testHandleURLRedirectionWithMixedCaseQuery() {
+		Config::inst()->update('RedirectedURLHandler', 'case_insensitive_matching', false);
 		$response = $this->get('query-test-with-mixed-case-query-string?Foo=bar');
 		$expected = $this->objFromFixture('RedirectedURL', 'redirect-with-mixed-case-query');
 
