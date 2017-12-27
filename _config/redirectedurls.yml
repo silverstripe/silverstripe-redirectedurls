@@ -1,0 +1,12 @@
+---
+name: redirectedurls
+---
+SilverStripe\Control\RequestHandler:
+  extensions:
+    - SilverStripe\RedirectedURLs\Extension\RedirectedURLHandler
+SilverStripe\CMS\Controllers\ContentController:
+  extensions:
+    - SilverStripe\RedirectedURLs\Extension\RedirectedURLHandler
+SilverStripe\CMS\Controllers\ModelAsController:
+  extensions:
+    - SilverStripe\RedirectedURLs\Extension\RedirectedURLHandler
