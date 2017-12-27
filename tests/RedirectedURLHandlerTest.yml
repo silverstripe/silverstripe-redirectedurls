@@ -1,4 +1,4 @@
-RedirectedURL:
+SilverStripe\RedirectedURLs\Model\RedirectedURL:
   redirect-signups:
     FromBase: /signups
     To: /site-info/log-in/
