@@ -113,7 +113,9 @@ class RedirectedURL extends DataObject implements PermissionProvider
     public function getFrom()
     {
         $url = $this->FromBase;
-        if ($this->FromQuerystring) $url .= "?" . $this->FromQuerystring;
+        if ($this->FromQuerystring) {
+            $url .= "?" . $this->FromQuerystring;
+        }
         return $url;
     }
 
@@ -123,8 +125,12 @@ class RedirectedURL extends DataObject implements PermissionProvider
      */
     public function setFromBase($val)
     {
-        if ($val[0] != '/') $val = "/$val";
-        if ($val != '/') $val = rtrim($val, '/');
+        if ($val[0] != '/') {
+            $val = "/$val";
+        }
+        if ($val != '/') {
+            $val = rtrim($val, '/');
+        }
         $val = rtrim($val, '?');
         $this->setField('FromBase', strtolower($val));
         return $this;
@@ -149,12 +155,13 @@ class RedirectedURL extends DataObject implements PermissionProvider
      */
     public function findByFrom($from)
     {
-        if ($from[0] != '/') $from = "/$from";
+        if ($from[0] != '/') {
+            $from = "/$from";
+        }
         $from = rtrim($from, '?');
 
         if (strpos($from, '?') !== false) {
             list($base, $querystring) = explode('?', strtolower($from), 2);
-
         } else {
             $base = $from;
             $querystring = null;
@@ -230,5 +237,4 @@ class RedirectedURL extends DataObject implements PermissionProvider
     {
         return Permission::checkMember($member, 'REDIRECTEDURLS_DELETE');
     }
-
 }

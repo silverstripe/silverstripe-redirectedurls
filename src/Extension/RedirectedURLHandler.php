@@ -90,7 +90,9 @@ class RedirectedURLHandler extends Extension
                     parse_str($potential->FromQuerystring, $reqVars);
 
                     foreach ($reqVars as $k => $v) {
-                        if (!$v) continue;
+                        if (!$v) {
+                            continue;
+                        }
 
                         if (!isset($getVars[$k]) || $v != $getVars[$k]) {
                             $allVarsMatch = false;
