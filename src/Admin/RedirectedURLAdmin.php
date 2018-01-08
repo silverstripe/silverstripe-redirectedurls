@@ -33,7 +33,7 @@ class RedirectedURLAdmin extends ModelAdmin
      * @var string
      * @config
      */
-    private static $menu_icon = 'silverstripe/redirectedurls:images/redirects.png';
+    private static $menu_icon = 'silverstripe/redirectedurls:images/redirect.svg';
 
     /**
      * @var array
