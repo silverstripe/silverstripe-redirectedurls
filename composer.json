@@ -25,11 +25,7 @@
     },
     "autoload": {
         "psr-4": {
-            "SilverStripe\\RedirectedURLs\\": "src/"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
+            "SilverStripe\\RedirectedURLs\\": "src/",
             "SilverStripe\\RedirectedURLs\\Test\\": "tests/"
         }
     },
