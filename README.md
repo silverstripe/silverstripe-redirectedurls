@@ -26,13 +26,11 @@ redirection for a page that already exists on the site.
 
 Installation
 ------------
-Either:
-1. Download or git clone the 'redirectedurls' directory to your webroot, or;
-2. Using composer run the following in the command line:
+Use composer to run the following in the command line:
 
   composer require silverstripe/redirectedurls dev-master
 
-3. Run dev/build (http://www.mysite.com/dev/build?flush=all)
+Then run dev/build (http://www.mysite.com/dev/build)
 
 Usage
 -----
