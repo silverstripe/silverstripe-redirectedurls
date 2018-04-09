@@ -1,0 +1,8 @@
+SilverStripe\RedirectedURLs\Model\RedirectedURL:
+  redirect-test1:
+    FromBase: /test/url
+    To: /test/target
+  redirect-test2:
+    FromBase: /test/url-2
+    FromQuerystring: subpage=12
+    To: /test/target-2

@@ -12,7 +12,9 @@ use SilverStripe\Security\PermissionProvider;
  *
  * @package redirectedurls
  * @author sam@silverstripe.com
- * @author scienceninjas@silverstripe.com
+ * @property string $FromBase
+ * @property string $FromQuerystring
+ * @property string $To
  */
 class RedirectedURL extends DataObject implements PermissionProvider
 {
@@ -173,8 +175,6 @@ class RedirectedURL extends DataObject implements PermissionProvider
 
         if ($querystring) {
             $filter['FromQuerystring'] = $querystring;
-        } else {
-            $filter['FromQuerystring:null'] = true;
         }
 
         return RedirectedURL::get()->filter($filter)->first();

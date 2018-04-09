@@ -2,10 +2,13 @@
 
 namespace SilverStripe\RedirectedURLs\Extension;
 
+use SilverStripe\CMS\Controllers\ContentController;
+use SilverStripe\CMS\Controllers\ModelAsController;
 use SilverStripe\Control\Director;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Control\HTTPResponse;
 use SilverStripe\Control\HTTPResponse_Exception;
+use SilverStripe\Control\RequestHandler;
 use SilverStripe\Core\Convert;
 use SilverStripe\Core\Extension;
 use SilverStripe\ORM\ArrayList;
@@ -17,6 +20,7 @@ use SilverStripe\RedirectedURLs\Model\RedirectedURL;
  * @package redirectedurls
  * @author sam@silverstripe.com
  * @author scienceninjas@silverstripe.com
+ * @property ContentController|ModelAsController|RequestHandler|RedirectedURLHandler $owner
  */
 class RedirectedURLHandler extends Extension
 {
