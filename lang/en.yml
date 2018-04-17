@@ -1,0 +1,9 @@
+en:
+  SilverStripe\RedirectedURLs\Admin\RedirectedURLAdmin:
+    MENUTITLE: Redirects
+  SilverStripe\RedirectedURLs\Model\RedirectedURL:
+    PLURALNAME: 'Redirected URLs'
+    PLURALS:
+      one: 'A Redirected URL'
+      other: '{count} Redirected URLs'
+    SINGULARNAME: 'Redirected URL'

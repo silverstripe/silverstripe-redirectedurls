@@ -53,13 +53,13 @@ class RedirectedURLAdmin extends ModelAdmin
      */
     public function getModelImporters()
     {
-        $importer = new CsvBulkLoader("RedirectedURL");
-        $importer->duplicateChecks = array(
-            'FromBase' => array('callback' => 'findByFrom'),
-        );
-        return array(
-            'RedirectedURL' => $importer
-        );
+        $importer = CsvBulkLoader::create(RedirectedURL::class);
+        $importer->duplicateChecks = [
+            'FromBase' => ['callback' => 'findByFrom'],
+        ];
+        return [
+            RedirectedURL::class => $importer
+        ];
     }
 
     /**

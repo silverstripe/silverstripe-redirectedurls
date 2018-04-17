@@ -14,7 +14,6 @@ use SilverStripe\RedirectedURLs\Model\RedirectedURL;
  */
 class RedirectedURLHandlerTest extends FunctionalTest
 {
-
     protected static $fixture_file = 'RedirectedURLHandlerTest.yml';
 
     protected function setUp()
