@@ -35,19 +35,18 @@ class RedirectedURL extends DataObject implements PermissionProvider {
 		'To',
 	);
 
-	public function validate()
-    {
-        $validation = parent::validate();
-        $recordWithSameFrom = self::get()->filter([
-            'ID:not' => $this->ID,
-            'FromBase' => $this->FromBase,
-            'FromQuerystring' => $this->FromQuerystring,
-        ])->first();
-        if ($recordWithSameFrom) {
-            $validation->error('There is another record #'.$recordWithSameFrom->ID.' with same FromBase "'.$this->FromBase.'" and FromQuerystring "'.$this->FromQuerystring.'"');
-        }
-        return $validation;
-    }
+	public function validate() {
+		$validation = parent::validate();
+		$recordWithSameFrom = self::get()->filter([
+			'ID:not' => $this->ID,
+			'FromBase' => $this->FromBase,
+			'FromQuerystring' => $this->FromQuerystring,
+		])->first();
+		if ($recordWithSameFrom) {
+			$validation->error('There is another record #'.$recordWithSameFrom->ID.' with same FromBase "'.$this->FromBase.'" and FromQuerystring "'.$this->FromQuerystring.'"');
+		}
+		return $validation;
+	}
 
     public function getCMSFields() {
 		$fields = parent::getCMSFields();
