@@ -1,0 +1,4 @@
+FromBase,FromQuerystring,To
+/about-us/duplicated-from-base.html,duplicated-query-string=1,/about/item/1
+/example/with-querystring.html,foo=1,/example/foo/1/bar/2
+/about-us/duplicated-from-base.html,duplicated-query-string=1,/about/item
