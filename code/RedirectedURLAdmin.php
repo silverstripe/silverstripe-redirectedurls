@@ -39,7 +39,7 @@ class RedirectedURLAdmin extends ModelAdmin {
 	 * @return array Map of model class names to importer instances
 	 */
 	public function getModelImporters() {
-		$importer = new CsvBulkLoader("RedirectedURL");
+		$importer = new RedirectedURLCsvBulkLoader("RedirectedURL");
 		$importer->duplicateChecks = array(
 			'FromBase' => array('callback' => 'findByFrom'),
 		);
