@@ -1,9 +1,4 @@
 <?php
-/**
- * Created by priyashantha@silverstripers.com
- * Date: 4/19/18
- * Time: 3:23 PM
- */
 
 class RedirectedURLCsvBulkLoader extends CsvBulkLoader
 {
