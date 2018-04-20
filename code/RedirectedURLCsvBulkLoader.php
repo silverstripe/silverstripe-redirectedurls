@@ -27,7 +27,9 @@ class RedirectedURLCsvBulkLoader extends CsvBulkLoader
         $relations = array();
         foreach($record as $fieldName => $val) {
             // don't bother querying of value is not set
-            if($this->isNullValue($val)) continue;
+            if($this->isNullValue($val)) {
+                continue;
+            };
 
             // checking for existing relations
             if(isset($this->relationCallbacks[$fieldName])) {
