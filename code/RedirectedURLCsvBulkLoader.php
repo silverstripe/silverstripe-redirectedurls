@@ -2,6 +2,7 @@
 
 class RedirectedURLCsvBulkLoader extends CsvBulkLoader
 {
+    private $exception_thrown;
 
     /**
      * @todo Better messages for relation checks and duplicate detection
@@ -16,6 +17,9 @@ class RedirectedURLCsvBulkLoader extends CsvBulkLoader
      * @return int
      */
     protected function processRecord($record, $columnMap, &$results, $preview = false) {
+        // make $exception_thrown false initially
+        $this->exception_thrown = false;
+
         $class = $this->objectClass;
 
         // find existing object, or create new one
@@ -48,7 +52,9 @@ class RedirectedURLCsvBulkLoader extends CsvBulkLoader
                     if (!$preview) {
                         try {
                             $relationObj->write();
-                        } catch (ValidationException $e) {}
+                        } catch (ValidationException $e) {
+                            $this->exception_thrown = true;
+                        }
                     };
                 }
                 $obj->{"{$relationName}ID"} = $relationObj->ID;
@@ -56,7 +62,9 @@ class RedirectedURLCsvBulkLoader extends CsvBulkLoader
                 if (!$preview) {
                     try {
                         $obj->write();
-                    } catch (ValidationException $e) {}
+                    } catch (ValidationException $e) {
+                        $this->exception_thrown = true;
+                    }
 
                     $obj->flushCache(); // avoid relation caching confusion
                 }
@@ -69,7 +77,9 @@ class RedirectedURLCsvBulkLoader extends CsvBulkLoader
                 if (!$preview)
                     try {
                         $relationObj->write();
-                    } catch (ValidationException $e) {}
+                    } catch (ValidationException $e) {
+                        $this->exception_thrown = true;
+                    }
 
                 $obj->{"{$relationName}ID"} = $relationObj->ID;
 
@@ -77,7 +87,9 @@ class RedirectedURLCsvBulkLoader extends CsvBulkLoader
                 if (!$preview) {
                     try {
                         $obj->write();
-                    } catch (ValidationException $e) {}
+                    } catch (ValidationException $e) {
+                        $this->exception_thrown = true;
+                    }
 
                     $obj->flushCache(); // avoid relation caching confusion
                 }
@@ -110,17 +122,21 @@ class RedirectedURLCsvBulkLoader extends CsvBulkLoader
         if (!$preview) {
             try {
                 $obj->write();
-            } catch (ValidationException $e) {}
+            } catch (ValidationException $e) {
+                $this->exception_thrown = true;
+            }
         }
 
         // @todo better message support
         $message = '';
 
         // save to results
-        if($existingObj) {
-            $results->addUpdated($obj, $message);
-        } else {
-            $results->addCreated($obj, $message);
+        if (!$this->exception_thrown) {
+            if($existingObj) {
+                $results->addUpdated($obj, $message);
+            } else {
+                $results->addCreated($obj, $message);
+            }
         }
 
         $objID = $obj->ID;
