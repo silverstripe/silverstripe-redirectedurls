@@ -37,11 +37,11 @@ class RedirectedURL extends DataObject implements PermissionProvider {
 
 	public function validate() {
 		$validation = parent::validate();
-		$recordWithSameFrom = self::get()->filter([
-			'ID:not' => $this->ID,
-			'FromBase' => $this->FromBase,
-			'FromQuerystring' => $this->FromQuerystring,
-		])->first();
+		$recordWithSameFrom = self::get()->filter(array(
+            'ID:not' => $this->ID,
+            'FromBase' => $this->FromBase,
+            'FromQuerystring' => $this->FromQuerystring,
+        ))->first();
 		if ($recordWithSameFrom) {
 			$validation->error('There is another record #'.$recordWithSameFrom->ID.' with same FromBase "'.$this->FromBase.'" and FromQuerystring "'.$this->FromQuerystring.'"');
 		}
