@@ -3,7 +3,6 @@
 class RedirectedURLCsvBulkLoader extends CsvBulkLoader
 {
     /**
-     * @todo Better messages for relation checks and duplicate detection
      * Note that columnMap isn't used.
      * overriding this here for handling ValidationException when DataObject::write() called
      *
@@ -12,7 +11,7 @@ class RedirectedURLCsvBulkLoader extends CsvBulkLoader
      * @param BulkLoader_Result $results
      * @param boolean $preview
      *
-     * @return int
+     * @return int - RedirectedURL object ID
      */
     protected function processRecord($record, $columnMap, &$results, $preview = false) {
         // make $exception_thrown false initially
