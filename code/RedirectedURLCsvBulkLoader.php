@@ -2,8 +2,6 @@
 
 class RedirectedURLCsvBulkLoader extends CsvBulkLoader
 {
-    private $exception_thrown;
-
     /**
      * @todo Better messages for relation checks and duplicate detection
      * Note that columnMap isn't used.
@@ -18,7 +16,7 @@ class RedirectedURLCsvBulkLoader extends CsvBulkLoader
      */
     protected function processRecord($record, $columnMap, &$results, $preview = false) {
         // make $exception_thrown false initially
-        $this->exception_thrown = false;
+        $exception_thrown = false;
 
         $class = $this->objectClass;
 
@@ -53,7 +51,7 @@ class RedirectedURLCsvBulkLoader extends CsvBulkLoader
                         try {
                             $relationObj->write();
                         } catch (ValidationException $e) {
-                            $this->exception_thrown = true;
+                            $exception_thrown = true;
                         }
                     };
                 }
@@ -63,7 +61,7 @@ class RedirectedURLCsvBulkLoader extends CsvBulkLoader
                     try {
                         $obj->write();
                     } catch (ValidationException $e) {
-                        $this->exception_thrown = true;
+                        $exception_thrown = true;
                     }
 
                     $obj->flushCache(); // avoid relation caching confusion
@@ -78,7 +76,7 @@ class RedirectedURLCsvBulkLoader extends CsvBulkLoader
                     try {
                         $relationObj->write();
                     } catch (ValidationException $e) {
-                        $this->exception_thrown = true;
+                        $exception_thrown = true;
                     }
 
                 $obj->{"{$relationName}ID"} = $relationObj->ID;
@@ -88,7 +86,7 @@ class RedirectedURLCsvBulkLoader extends CsvBulkLoader
                     try {
                         $obj->write();
                     } catch (ValidationException $e) {
-                        $this->exception_thrown = true;
+                        $exception_thrown = true;
                     }
 
                     $obj->flushCache(); // avoid relation caching confusion
@@ -123,7 +121,7 @@ class RedirectedURLCsvBulkLoader extends CsvBulkLoader
             try {
                 $obj->write();
             } catch (ValidationException $e) {
-                $this->exception_thrown = true;
+                $exception_thrown = true;
             }
         }
 
@@ -131,7 +129,7 @@ class RedirectedURLCsvBulkLoader extends CsvBulkLoader
         $message = '';
 
         // save to results
-        if (!$this->exception_thrown) {
+        if (!$exception_thrown) {
             if($existingObj) {
                 $results->addUpdated($obj, $message);
             } else {
