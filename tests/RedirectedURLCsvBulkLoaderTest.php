@@ -8,7 +8,7 @@ class RedirectedURLCsvBulkLoaderTest extends SapphireTest {
         $loader = new RedirectedURLCsvBulkLoader('RedirectedURL');
         $results = $loader->load($this->getCurrentRelativePath() . '/RedirectedURLCsvBulkLoaderTest.csv');
         $created = $results->Created()->toArray();
-        $this->assertEquals(count($created), 2);
+        $this->assertCount(2, $created);
 
         $this->assertEquals($created[0]->FromBase, '/about-us/duplicated-from-base.html');
         $this->assertEquals($created[0]->FromQuerystring, 'duplicated-query-string=1');
