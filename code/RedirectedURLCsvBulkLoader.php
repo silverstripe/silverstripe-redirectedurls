@@ -3,7 +3,6 @@
 class RedirectedURLCsvBulkLoader extends CsvBulkLoader
 {
     /**
-     * Note that columnMap isn't used.
      * overriding this here for handling ValidationException when DataObject::write() called
      *
      * @param array $record
