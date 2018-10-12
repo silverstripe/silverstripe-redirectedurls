@@ -2,6 +2,10 @@
 
 namespace SilverStripe\RedirectedURLs\Model;
 
+use SilverStripe\CMS\Model\SiteTree;
+use SilverStripe\Forms\FieldGroup;
+use SilverStripe\Forms\LiteralField;
+use SilverStripe\Forms\TreeDropdownField;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\Permission;
@@ -11,7 +15,7 @@ use SilverStripe\Security\PermissionProvider;
  * Specifies one URL redirection
  *
  * @package redirectedurls
- * @author sam@silverstripe.com
+ * @author  sam@silverstripe.com
  * @property string $FromBase
  * @property string $FromQuerystring
  * @property string $To
@@ -36,10 +40,20 @@ class RedirectedURL extends DataObject implements PermissionProvider
      * @config
      */
     private static $db = array(
-        'FromBase' => 'Varchar(255)',
+        'FromBase'        => 'Varchar(255)',
         'FromQuerystring' => 'Varchar(255)',
-        'To' => 'Varchar(255)',
+        'To'              => 'Varchar(255)',
     );
+
+    /**
+     * List of one-to-one relationships. {@link DataObject::$has_one}
+     *
+     * @var array
+     * @config
+     */
+    private static $has_one = [
+        'Page' => SiteTree::class
+    ];
 
     /**
      * @var array
@@ -47,7 +61,7 @@ class RedirectedURL extends DataObject implements PermissionProvider
      */
     private static $indexes = array(
         'From' => array(
-            'type' => 'unique',
+            'type'    => 'unique',
             'columns' => array(
                 'FromBase',
                 'FromQuerystring',
@@ -60,9 +74,10 @@ class RedirectedURL extends DataObject implements PermissionProvider
      * @config
      */
     private static $summary_fields = array(
-        'FromBase' => 'From URL base',
+        'FromBase'        => 'From URL base',
         'FromQuerystring' => 'From URL query parameters',
-        'To' => 'To URL',
+        'To'              => 'To URL',
+        'Page.MenuTitle'  => 'To Page'
     );
 
     /**
@@ -73,11 +88,13 @@ class RedirectedURL extends DataObject implements PermissionProvider
         'FromBase',
         'FromQuerystring',
         'To',
+        'PageID'
     );
 
     public function getCMSFields()
     {
         $fields = parent::getCMSFields();
+        $fields->removeByName('PageID');
 
         $fromBaseField = $fields->fieldByName('Root.Main.FromBase');
         $fromBaseField->setDescription('e.g. /about-us.html');
@@ -86,7 +103,21 @@ class RedirectedURL extends DataObject implements PermissionProvider
         $fromQueryStringField->setDescription('e.g. page=1&num=5');
 
         $toField = $fields->fieldByName('Root.Main.To');
-        $toField->setDescription('e.g. /about?something=5');
+        $fields->removeByName('To');
+        $toField->setTitle($toField->Title() . ' (URL)');
+
+        $pageField = TreeDropdownField::create('PageID', $this->fieldLabel('Page'), SiteTree::class);
+        $pageField->setTitle($pageField->Title() . ' ' . _t(__CLASS__ . '.ExistingPage', '(Existing page)'));
+
+        $toSeperator = LiteralField::create('togroupseperator', '<strong style="margin: 0 10px 0 1px;">' . _t(__CLASS__ . '.Or', 'OR') . '</strong>');
+
+        $toGroup = FieldGroup::create($this->fieldLabel('To'), [
+            $toField,
+            $toSeperator,
+            $pageField
+        ])->setDescription('e.g. /about?something=5 or choose an existing page in the dropdown');
+
+        $fields->addFieldToTab('Root.Main', $toGroup);
 
         return $fields;
     }
@@ -118,6 +149,7 @@ class RedirectedURL extends DataObject implements PermissionProvider
         if ($this->FromQuerystring) {
             $url .= "?" . $this->FromQuerystring;
         }
+
         return $url;
     }
 
@@ -135,6 +167,7 @@ class RedirectedURL extends DataObject implements PermissionProvider
         }
         $val = rtrim($val, '?');
         $this->setField('FromBase', strtolower($val));
+
         return $this;
     }
 
@@ -146,6 +179,7 @@ class RedirectedURL extends DataObject implements PermissionProvider
     {
         $val = rtrim($val, '?');
         $this->setField('FromQuerystring', strtolower($val));
+
         return $this;
     }
 
@@ -187,15 +221,15 @@ class RedirectedURL extends DataObject implements PermissionProvider
     {
         return array(
             'REDIRECTEDURLS_CREATE' => array(
-                'name' => 'Create a redirect',
+                'name'     => 'Create a redirect',
                 'category' => 'Redirects'
             ),
-            'REDIRECTEDURLS_EDIT' => array(
-                'name' => 'Edit a redirect',
+            'REDIRECTEDURLS_EDIT'   => array(
+                'name'     => 'Edit a redirect',
                 'category' => 'Redirects',
             ),
             'REDIRECTEDURLS_DELETE' => array(
-                'name' => 'Delete a redirect',
+                'name'     => 'Delete a redirect',
                 'category' => 'Redirects',
             )
         );
@@ -212,7 +246,7 @@ class RedirectedURL extends DataObject implements PermissionProvider
 
     /**
      * @param Member|null $member
-     * @param array $context
+     * @param array       $context
      * @return bool
      */
     public function canCreate($member = null, $context = array())
@@ -236,5 +270,14 @@ class RedirectedURL extends DataObject implements PermissionProvider
     public function canDelete($member = null)
     {
         return Permission::checkMember($member, 'REDIRECTEDURLS_DELETE');
+    }
+
+    protected function onBeforeWrite()
+    {
+        parent::onBeforeWrite();
+
+        if ($this->PageID) {
+            $this->To = '';
+        }
     }
 }

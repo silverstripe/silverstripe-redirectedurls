@@ -115,7 +115,7 @@ class RedirectedURLHandler extends Extension
         // If there's a match, direct!
         if ($matched) {
             $response = new HTTPResponse();
-            $dest = $matched->To;
+            $dest = $matched->Page()->exists() ? $matched->Page()->Link() : $matched->To;
             $response->redirect(Director::absoluteURL($dest), 301);
 
             throw new HTTPResponse_Exception($response);
