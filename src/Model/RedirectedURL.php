@@ -87,6 +87,8 @@ class RedirectedURL extends DataObject implements PermissionProvider
 
         $toField = $fields->fieldByName('Root.Main.To');
         $toField->setDescription('e.g. /about?something=5');
+        
+        $this->extend('updateCMSFields', $fields);
 
         return $fields;
     }
