@@ -10,3 +10,6 @@ SilverStripe\CMS\Controllers\ContentController:
 SilverStripe\CMS\Controllers\ModelAsController:
   extensions:
     - SilverStripe\RedirectedURLs\Extension\RedirectedURLHandler
+SilverStripe\ORM\DatabaseAdmin:
+  classname_value_remapping:
+    RedirectedURL: 'SilverStripe\RedirectedURLs\Model\RedirectedURL'
