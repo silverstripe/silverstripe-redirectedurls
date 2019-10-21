@@ -43,6 +43,9 @@ class RedirectedURLAdmin extends ModelAdmin {
 		$importer->duplicateChecks = array(
 			'FromBase' => array('callback' => 'findByFrom'),
 		);
+
+        $this->extend('updateModelImporters', $importer);
+
 		return array(
 			'RedirectedURL' => $importer
 		);
@@ -61,6 +64,9 @@ class RedirectedURLAdmin extends ModelAdmin {
 		foreach(singleton($this->modelClass)->db() as $field => $spec) {
 			$fields[$field] = $field;
 		}
+
+		$this->extend('updateExportFields', $fields);
+
 		return $fields;
 	}
 }
