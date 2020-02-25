@@ -6,6 +6,11 @@ use SilverStripe\ORM\DataObject;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\Permission;
 use SilverStripe\Security\PermissionProvider;
+use SilverStripe\CMS\Model\SiteTree;
+use SilverStripe\Forms\OptionsetField;
+use SilverStripe\Forms\TreeDropdownField;
+use SilverStripe\CMS\Model\RedirectorPage;
+use UncleCheese\DisplayLogic\Forms\Wrapper;
 
 /**
  * Specifies one URL redirection
@@ -39,6 +44,15 @@ class RedirectedURL extends DataObject implements PermissionProvider
         'FromBase' => 'Varchar(255)',
         'FromQuerystring' => 'Varchar(255)',
         'To' => 'Varchar(255)',
+        'RedirectionType' => 'Enum("Internal,External", "Internal")',
+    );
+
+    /**
+     * @var array
+     * @config
+     */
+    private static $has_one = array(
+        'LinkTo' => SiteTree::class,
     );
 
     /**
@@ -63,6 +77,7 @@ class RedirectedURL extends DataObject implements PermissionProvider
         'FromBase' => 'From URL base',
         'FromQuerystring' => 'From URL query parameters',
         'To' => 'To URL',
+        'RedirectionType' => 'Redirection type',
     );
 
     /**
@@ -87,6 +102,25 @@ class RedirectedURL extends DataObject implements PermissionProvider
 
             $toField = $fields->fieldByName('Root.Main.To');
             $toField->setDescription('e.g. /about?something=5');
+
+            $fields->replaceField('Root.Main.RedirectionType', OptionsetField::create(
+                'RedirectionType',
+                'Redirect to',
+                [
+                    'Internal' => _t(__CLASS__.'.FIELD_REDIRECTIONTYPE_OPTION_INTERNAL', 'A page on your website'),
+                    'External' => _t(__CLASS__.'.FIELD_REDIRECTIONTYPE_OPTION_EXTERNAL', 'Another website'),
+                ],
+                'Internal'
+            ));
+            
+            $fields->replaceField('LinkToID', $linkToWrapperField = Wrapper::create(TreeDropdownField::create(
+                'LinkToID',
+                'Page on your website',
+                SiteTree::class
+            )));
+
+            $fields->fieldByName('Root.Main.To')->displayIf('RedirectionType')->isEqualTo('External');
+            $linkToWrapperField->displayIf('RedirectionType')->isEqualTo('Internal');
         });
 
         return parent::getCMSFields();
@@ -237,5 +271,39 @@ class RedirectedURL extends DataObject implements PermissionProvider
     public function canDelete($member = null)
     {
         return Permission::checkMember($member, 'REDIRECTEDURLS_DELETE');
+    }
+
+    /**
+     * @return string
+     */
+    public function Link()
+    {
+        // Check external redirect
+        if ($this->RedirectionType === 'External') {
+            return $this->To ?: null;
+        }
+
+        // Check internal redirect
+        /** @var SiteTree $linkTo */
+        $linkTo = $this->LinkToID ? SiteTree::get()->byID($this->LinkToID) : null;
+        if (empty($linkTo)) {
+            return null;
+        }
+
+        // We shouldn't point to ourselves - that would create an infinite loop!  Return null since we have a
+        // bad configuration
+        if (intval($this->ID) === intval($linkTo->ID)) {
+            return null;
+        }
+
+        // If we're linking to another redirectorpage then just return the URLSegment, to prevent a cycle of redirector
+        // pages from causing an infinite loop.  Instead, they will cause a 30x redirection loop in the browser, but
+        // this can be handled sufficiently gracefully by the browser.
+        if ($linkTo instanceof RedirectorPage) {
+            return $linkTo->regularLink();
+        }
+
+        // For all other pages, just return the link of the page.
+        return $linkTo->RelativeLink();
     }
 }
