@@ -6,6 +6,12 @@ use SilverStripe\ORM\DataObject;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\Permission;
 use SilverStripe\Security\PermissionProvider;
+use SilverStripe\Forms\TextField;
+use SilverStripe\CMS\Model\SiteTree;
+use SilverStripe\Forms\OptionsetField;
+use SilverStripe\Forms\TreeDropdownField;
+use SilverStripe\CMS\Model\RedirectorPage;
+use UncleCheese\DisplayLogic\Forms\Wrapper;
 
 /**
  * Specifies one URL redirection
@@ -39,6 +45,15 @@ class RedirectedURL extends DataObject implements PermissionProvider
         'FromBase' => 'Varchar(255)',
         'FromQuerystring' => 'Varchar(255)',
         'To' => 'Varchar(255)',
+        'RedirectionType' => 'Enum("Internal,External", "Internal")',
+    );
+
+    /**
+     * @var array
+     * @config
+     */
+    private static $has_one = array(
+        'LinkTo' => SiteTree::class,
     );
 
     /**
@@ -63,6 +78,7 @@ class RedirectedURL extends DataObject implements PermissionProvider
         'FromBase' => 'From URL base',
         'FromQuerystring' => 'From URL query parameters',
         'To' => 'To URL',
+        'RedirectionType' => 'Redirection type',
     );
 
     /**
@@ -79,14 +95,54 @@ class RedirectedURL extends DataObject implements PermissionProvider
     {
         $fields = parent::getCMSFields();
 
-        $fromBaseField = $fields->fieldByName('Root.Main.FromBase');
-        $fromBaseField->setDescription('e.g. /about-us.html');
+        $fields->removeByName([
+            'FromBase',
+            'FromQuerystring',
+            'To',
+            'RedirectionType',
+            'LinkToID',
+        ]);
 
-        $fromQueryStringField = $fields->fieldByName('Root.Main.FromQuerystring');
-        $fromQueryStringField->setDescription('e.g. page=1&num=5');
+        $fields->addFieldsToTab(
+            'Root.Main', [
+                $fromBaseField = TextField::create(
+                    'FromBase',
+                    _t(__CLASS__.'.FIELD_TITLE_FROMBASE', 'From base')
+                ),
+                $fromQueryStringField = TextField::create(
+                    'FromQuerystring',
+                    _t(__CLASS__.'.FIELD_TITLE_FROMQUERYSTRING', 'From querystring')
+                ),
+                $redirectionTypeField = OptionsetField::create(
+                    'RedirectionType',
+                    _t(__CLASS__.'.FIELD_TITLE_REDIRECTIONTYPE', 'Redirect to'),
+                    [
+                        'Internal' => _t(__CLASS__.'.FIELD_REDIRECTIONTYPE_OPTION_INTERNAL', 'A page on your website'),
+                        'External' => _t(__CLASS__.'.FIELD_REDIRECTIONTYPE_OPTION_EXTERNAL', 'Another website'),
+                    ],
+                    'Internal'
+                ),
+                $toField = TextField::create(
+                    'To',
+                    _t(__CLASS__.'.FIELD_TITLE_TO', 'To')
+                ),
+                $linkToWrapperField = Wrapper::create($linkToField = TreeDropdownField::create(
+                    'LinkToID',
+                    _t(__CLASS__.'.FIELD_TITLE_LINKTOID', 'Page on your website'),
+                    SiteTree::class
+                )),
+            ]
+        );
 
-        $toField = $fields->fieldByName('Root.Main.To');
-        $toField->setDescription('e.g. /about?something=5');
+        $fromBaseField->setDescription(_t(__CLASS__.'.FIELD_DESCRIPTION_FROMBASE', 'e.g. /about-us.html'));
+        
+        $fromQueryStringField->setDescription(_t(__CLASS__.'.FIELD_DESCRIPTION_FROMQUERYSTRING', 'e.g. page=1&num=5'));
+        
+        $toField->setDescription(_t(__CLASS__.'.FIELD_DESCRIPTION_TO', 'e.g. /about?something=5'));
+        $toField->displayIf('RedirectionType')->isEqualTo('External');
+
+        $linkToField->setDescription(_t(__CLASS__.'.FIELD_DESCRIPTION_LINKTO', 'select a desired page from the dropdown menu'));
+        $linkToWrapperField->displayIf('RedirectionType')->isEqualTo('Internal');
 
         return $fields;
     }
@@ -236,5 +292,39 @@ class RedirectedURL extends DataObject implements PermissionProvider
     public function canDelete($member = null)
     {
         return Permission::checkMember($member, 'REDIRECTEDURLS_DELETE');
+    }
+
+    /**
+     * @return string
+     */
+    public function Link()
+    {
+        // Check external redirect
+        if ($this->RedirectionType === 'External') {
+            return $this->To ?: null;
+        }
+
+        // Check internal redirect
+        /** @var SiteTree $linkTo */
+        $linkTo = $this->LinkToID ? SiteTree::get()->byID($this->LinkToID) : null;
+        if (empty($linkTo)) {
+            return null;
+        }
+
+        // We shouldn't point to ourselves - that would create an infinite loop!  Return null since we have a
+        // bad configuration
+        if (intval($this->ID) === intval($linkTo->ID)) {
+            return null;
+        }
+
+        // If we're linking to another redirectorpage then just return the URLSegment, to prevent a cycle of redirector
+        // pages from causing an infinite loop.  Instead, they will cause a 30x redirection loop in the browser, but
+        // this can be handled sufficiently gracefully by the browser.
+        if ($linkTo instanceof RedirectorPage) {
+            return $linkTo->regularLink();
+        }
+
+        // For all other pages, just return the link of the page.
+        return $linkTo->RelativeLink();
     }
 }

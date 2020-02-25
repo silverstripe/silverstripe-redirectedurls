@@ -74,7 +74,7 @@ class RedirectedURLHandler extends Extension
             $basepots = RedirectedURL::get()->filter(array('FromBase' => '/' . $basepart))->sort('FromQuerystring ASC');
             foreach ($basepots as $basepot) {
                 // If the To URL ends in a wildcard /*, append the remaining request URL elements
-                if (substr($basepot->To, -2) === '/*') {
+                if ($basepot->RedirectionType === 'External' && substr($basepot->To, -2) === '/*') {
                     $basepot->To = substr($basepot->To, 0, -2) . substr($base, strlen($basestr));
                 }
                 $listPotentials->push($basepot);
@@ -115,7 +115,7 @@ class RedirectedURLHandler extends Extension
         // If there's a match, direct!
         if ($matched) {
             $response = new HTTPResponse();
-            $dest = $matched->To;
+            $dest = $matched->Link();
             $response->redirect(Director::absoluteURL($dest), 301);
 
             throw new HTTPResponse_Exception($response);
