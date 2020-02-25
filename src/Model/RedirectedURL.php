@@ -187,8 +187,8 @@ class RedirectedURL extends DataObject implements PermissionProvider
     protected function getCodes()
     {
         return [
-            301 =. _t(__CLASS__.'.CODE_301', '301 - Permanent'),
-            302 =. _t(__CLASS__.'.CODE_302', '302 - Temporary'),
+            301 => _t(__CLASS__.'.CODE_301', '301 - Permanent'),
+            302 => _t(__CLASS__.'.CODE_302', '302 - Temporary'),
         ];
     }
 
