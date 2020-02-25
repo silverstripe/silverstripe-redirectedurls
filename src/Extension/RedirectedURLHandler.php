@@ -13,6 +13,7 @@ use SilverStripe\Core\Convert;
 use SilverStripe\Core\Extension;
 use SilverStripe\ORM\ArrayList;
 use SilverStripe\RedirectedURLs\Model\RedirectedURL;
+use SilverStripe\Core\Config\Config;
 
 /**
  * Handles the redirection of any url from a controller.
@@ -44,6 +45,23 @@ class RedirectedURLHandler extends Extension
         }
 
         return $result;
+    }
+
+    protected function getRedirectCode($redirectedURL = false)
+    {
+        if ($redirectedURL instanceof RedirectedURL) {
+            if (isset($redirectedURL->RedirectCode) && intval($redirectedURL->RedirectCode) > 0) {
+                return intval($redirectedURL->RedirectCode);
+            }
+        }
+
+        $redirectCode = 301;
+        $defaultRedirectCode = intval(Config::inst()->get(RedirectedURL::class, 'defaultRedirectCode'));
+        if ($defaultRedirectCode > 0) {
+            $redirectCode = $defaultRedirectCode;
+        }
+
+        return $redirectCode;
     }
 
     /**
@@ -116,7 +134,7 @@ class RedirectedURLHandler extends Extension
         if ($matched) {
             $response = new HTTPResponse();
             $dest = $matched->Link();
-            $response->redirect(Director::absoluteURL($dest), 301);
+            $response->redirect(Director::absoluteURL($dest), $this->getRedirectCode($matched));
 
             throw new HTTPResponse_Exception($response);
         }
@@ -126,7 +144,7 @@ class RedirectedURLHandler extends Extension
             $newBase = preg_replace('/pages\/default.aspx$/i', '', $base);
 
             $response = new HTTPResponse;
-            $response->redirect(Director::absoluteURL($newBase), 301);
+            $response->redirect(Director::absoluteURL($newBase), $this->getRedirectCode());
 
             throw new HTTPResponse_Exception($response);
         }

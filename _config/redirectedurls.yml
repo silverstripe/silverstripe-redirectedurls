@@ -13,3 +13,5 @@ SilverStripe\CMS\Controllers\ModelAsController:
 SilverStripe\ORM\DatabaseAdmin:
   classname_value_remapping:
     RedirectedURL: 'SilverStripe\RedirectedURLs\Model\RedirectedURL'
+SilverStripe\RedirectedURLs\Model\RedirectedURL:
+  defaultRedirectCode: 301

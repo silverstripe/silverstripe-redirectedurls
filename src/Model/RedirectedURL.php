@@ -12,6 +12,8 @@ use SilverStripe\Forms\OptionsetField;
 use SilverStripe\Forms\TreeDropdownField;
 use SilverStripe\CMS\Model\RedirectorPage;
 use UncleCheese\DisplayLogic\Forms\Wrapper;
+use SilverStripe\Core\Config\Config;
+use SilverStripe\Forms\DropdownField;
 
 /**
  * Specifies one URL redirection
@@ -46,6 +48,7 @@ class RedirectedURL extends DataObject implements PermissionProvider
         'FromQuerystring' => 'Varchar(255)',
         'To' => 'Varchar(255)',
         'RedirectionType' => 'Enum("Internal,External", "Internal")',
+        'RedirectCode' => 'Int',
     );
 
     /**
@@ -78,7 +81,9 @@ class RedirectedURL extends DataObject implements PermissionProvider
         'FromBase' => 'From URL base',
         'FromQuerystring' => 'From URL query parameters',
         'To' => 'To URL',
+        'LinkTo.Title' => 'Link To',
         'RedirectionType' => 'Redirection type',
+        'RedirectCode' => 'Redirect code',
     );
 
     /**
@@ -98,6 +103,7 @@ class RedirectedURL extends DataObject implements PermissionProvider
         $fields->removeByName([
             'FromBase',
             'FromQuerystring',
+            'RedirectCode',
             'To',
             'RedirectionType',
             'LinkToID',
@@ -112,6 +118,11 @@ class RedirectedURL extends DataObject implements PermissionProvider
                 $fromQueryStringField = TextField::create(
                     'FromQuerystring',
                     _t(__CLASS__.'.FIELD_TITLE_FROMQUERYSTRING', 'From querystring')
+                ),
+                $redirectCodeField = DropdownField::create(
+                    'RedirectCode',
+                    _t(__CLASS__.'.FIELD_TITLE_REDIRECTCODE', 'Redirect code'),
+                    $this->getCodes()
                 ),
                 $redirectionTypeField = OptionsetField::create(
                     'RedirectionType',
@@ -145,6 +156,40 @@ class RedirectedURL extends DataObject implements PermissionProvider
         $linkToWrapperField->displayIf('RedirectionType')->isEqualTo('Internal');
 
         return $fields;
+    }
+
+    /**
+     * @return int
+     */
+    public function populateDefaults()
+    {
+        $this->RedirectCode = $this->getRedirectCodeDefault();
+    }
+
+    /**
+     * @return int
+     */
+    private function getRedirectCodeDefault()
+    {
+        $redirectCodeValue = 301;
+
+        $defaultRedirectCode = intval(Config::inst()->get(RedirectedURL::class, 'defaultRedirectCode'));
+        if ($defaultRedirectCode > 0) {
+            $redirectCodeValue = $defaultRedirectCode;
+        }
+
+        return $redirectCodeValue;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getCodes()
+    {
+        return [
+            301 =. _t(__CLASS__.'.CODE_301', '301 - Permanent'),
+            302 =. _t(__CLASS__.'.CODE_302', '302 - Temporary'),
+        ];
     }
 
     /**
