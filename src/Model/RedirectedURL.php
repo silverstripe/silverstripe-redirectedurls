@@ -11,6 +11,8 @@ use SilverStripe\Forms\OptionsetField;
 use SilverStripe\Forms\TreeDropdownField;
 use SilverStripe\CMS\Model\RedirectorPage;
 use UncleCheese\DisplayLogic\Forms\Wrapper;
+use SilverStripe\Core\Config\Config;
+use SilverStripe\Forms\DropdownField;
 
 /**
  * Specifies one URL redirection
@@ -45,6 +47,7 @@ class RedirectedURL extends DataObject implements PermissionProvider
         'FromQuerystring' => 'Varchar(255)',
         'To' => 'Varchar(255)',
         'RedirectionType' => 'Enum("Internal,External", "Internal")',
+        'RedirectCode' => 'Int',
     );
 
     /**
@@ -77,7 +80,9 @@ class RedirectedURL extends DataObject implements PermissionProvider
         'FromBase' => 'From URL base',
         'FromQuerystring' => 'From URL query parameters',
         'To' => 'To URL',
+        'LinkTo.Title' => 'Link To',
         'RedirectionType' => 'Redirection type',
+        'RedirectCode' => 'Redirect code',
     );
 
     /**
@@ -103,7 +108,7 @@ class RedirectedURL extends DataObject implements PermissionProvider
             $toField = $fields->fieldByName('Root.Main.To');
             $toField->setDescription('e.g. /about?something=5');
 
-            $fields->replaceField('Root.Main.RedirectionType', OptionsetField::create(
+            $fields->replaceField('RedirectionType', OptionsetField::create(
                 'RedirectionType',
                 'Redirect to',
                 [
@@ -112,7 +117,13 @@ class RedirectedURL extends DataObject implements PermissionProvider
                 ],
                 'Internal'
             ));
-            
+
+            $fields->replaceField('RedirectCode', DropdownField::create(
+                'RedirectCode',
+                _t(__CLASS__.'.FIELD_TITLE_REDIRECTCODE', 'Redirect code'),
+                $this->getCodes()
+            ));
+
             $fields->replaceField('LinkToID', $linkToWrapperField = Wrapper::create(TreeDropdownField::create(
                 'LinkToID',
                 'Page on your website',
@@ -124,6 +135,40 @@ class RedirectedURL extends DataObject implements PermissionProvider
         });
 
         return parent::getCMSFields();
+    }
+
+    /**
+     * @return int
+     */
+    public function populateDefaults()
+    {
+        $this->RedirectCode = $this->getRedirectCodeDefault();
+    }
+
+    /**
+     * @return int
+     */
+    private function getRedirectCodeDefault()
+    {
+        $redirectCodeValue = 301;
+
+        $defaultRedirectCode = intval(Config::inst()->get(RedirectedURL::class, 'default_redirect_code'));
+        if ($defaultRedirectCode > 0) {
+            $redirectCodeValue = $defaultRedirectCode;
+        }
+
+        return $redirectCodeValue;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getCodes()
+    {
+        return [
+            301 => _t(__CLASS__.'.CODE_301', '301 - Permanent'),
+            302 => _t(__CLASS__.'.CODE_302', '302 - Temporary'),
+        ];
     }
 
     /**
