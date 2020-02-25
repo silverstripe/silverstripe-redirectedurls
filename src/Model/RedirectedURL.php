@@ -110,7 +110,8 @@ class RedirectedURL extends DataObject implements PermissionProvider
         ]);
 
         $fields->addFieldsToTab(
-            'Root.Main', [
+            'Root.Main',
+            [
                 $fromBaseField = TextField::create(
                     'FromBase',
                     _t(__CLASS__.'.FIELD_TITLE_FROMBASE', 'From base')
