@@ -77,18 +77,19 @@ class RedirectedURL extends DataObject implements PermissionProvider
 
     public function getCMSFields()
     {
-        $fields = parent::getCMSFields();
+        $this->beforeUpdateCMSFields(function ($fields) {
+            // Include field which must be present when updateCMSFields is called on extensions
+            $fromBaseField = $fields->fieldByName('Root.Main.FromBase');
+            $fromBaseField->setDescription('e.g. /about-us.html');
 
-        $fromBaseField = $fields->fieldByName('Root.Main.FromBase');
-        $fromBaseField->setDescription('e.g. /about-us.html');
+            $fromQueryStringField = $fields->fieldByName('Root.Main.FromQuerystring');
+            $fromQueryStringField->setDescription('e.g. page=1&num=5');
 
-        $fromQueryStringField = $fields->fieldByName('Root.Main.FromQuerystring');
-        $fromQueryStringField->setDescription('e.g. page=1&num=5');
+            $toField = $fields->fieldByName('Root.Main.To');
+            $toField->setDescription('e.g. /about?something=5');
+        });
 
-        $toField = $fields->fieldByName('Root.Main.To');
-        $toField->setDescription('e.g. /about?something=5');
-
-        return $fields;
+        return parent::getCMSFields();
     }
 
     /**
