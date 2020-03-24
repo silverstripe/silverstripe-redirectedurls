@@ -153,7 +153,6 @@ class RedirectedURL extends DataObject implements PermissionProvider
         $toField->setDescription(_t(__CLASS__.'.FIELD_DESCRIPTION_TO', 'e.g. /about?something=5'));
         $toField->displayIf('RedirectionType')->isEqualTo('External');
 
-        $linkToField->setDescription(_t(__CLASS__.'.FIELD_DESCRIPTION_LINKTO', 'select a desired page from the dropdown menu'));
         $linkToWrapperField->displayIf('RedirectionType')->isEqualTo('Internal');
 
         return $fields;
