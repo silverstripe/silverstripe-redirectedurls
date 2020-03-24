@@ -138,7 +138,7 @@ class RedirectedURL extends DataObject implements PermissionProvider
                     'To',
                     _t(__CLASS__.'.FIELD_TITLE_TO', 'To')
                 ),
-                $linkToWrapperField = Wrapper::create($linkToField = TreeDropdownField::create(
+                $linkToWrapperField = Wrapper::create(TreeDropdownField::create(
                     'LinkToID',
                     _t(__CLASS__.'.FIELD_TITLE_LINKTOID', 'Page on your website'),
                     SiteTree::class
