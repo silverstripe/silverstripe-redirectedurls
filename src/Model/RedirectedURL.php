@@ -128,8 +128,10 @@ class RedirectedURL extends DataObject implements PermissionProvider
                         'RedirectionType',
                         _t(__CLASS__.'.FIELD_TITLE_REDIRECTIONTYPE', 'Redirect to'),
                         [
-                            'Internal' => _t(__CLASS__.'.FIELD_REDIRECTIONTYPE_OPTION_INTERNAL', 'A page on your website'),
-                            'External' => _t(__CLASS__.'.FIELD_REDIRECTIONTYPE_OPTION_EXTERNAL', 'Another website'),
+                            'Internal' =>
+                                _t(__CLASS__.'.FIELD_REDIRECTIONTYPE_OPTION_INTERNAL', 'A page on your website'),
+                            'External' =>
+                                _t(__CLASS__.'.FIELD_REDIRECTIONTYPE_OPTION_EXTERNAL', 'Another website'),
                         ],
                         'Internal'
                     ),
@@ -147,18 +149,14 @@ class RedirectedURL extends DataObject implements PermissionProvider
 
             $fromBaseField->setDescription(_t(__CLASS__.'.FIELD_DESCRIPTION_FROMBASE', 'e.g. /about-us.html'));
 
-            $fromQueryStringField->setDescription(_t(__CLASS__.'.FIELD_DESCRIPTION_FROMQUERYSTRING', 'e.g. page=1&num=5'));
+            $fromQueryStringField->setDescription(
+                _t(__CLASS__.'.FIELD_DESCRIPTION_FROMQUERYSTRING', 'e.g. page=1&num=5')
+            );
 
             $toField->setDescription(_t(__CLASS__.'.FIELD_DESCRIPTION_TO', 'e.g. /about?something=5'));
             $toField->displayIf('RedirectionType')->isEqualTo('External');
 
             $linkToWrapperField->displayIf('RedirectionType')->isEqualTo('Internal');
-
-            $fromQueryStringField = $fields->fieldByName('Root.Main.FromQuerystring');
-            $fromQueryStringField->setDescription('e.g. page=1&num=5');
-
-            $toField = $fields->fieldByName('Root.Main.To');
-            $toField->setDescription('e.g. /about?something=5');
         });
 
         return parent::getCMSFields();

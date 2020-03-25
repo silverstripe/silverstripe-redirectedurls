@@ -78,8 +78,8 @@ class RedirectedURLHandler extends Extension
         // Assumes the base url has no trailing slash.
         $SQL_base = Convert::raw2sql(rtrim($base, '/'));
 
-        $potentials = RedirectedURL::get()->filter(array('FromBase' => '/' . $SQL_base))->sort('FromQuerystring DESC');
-        $listPotentials = new ArrayList;
+        $potentials = RedirectedURL::get()->filter(['FromBase' => '/' . $SQL_base])->sort('FromQuerystring DESC');
+        $listPotentials = new ArrayList();
         foreach ($potentials as $potential) {
             $listPotentials->push($potential);
         }
@@ -89,7 +89,7 @@ class RedirectedURLHandler extends Extension
         for ($pos = count($baseparts) - 1; $pos >= 0; $pos--) {
             $basestr = implode('/', array_slice($baseparts, 0, $pos));
             $basepart = Convert::raw2sql($basestr . '/*');
-            $basepots = RedirectedURL::get()->filter(array('FromBase' => '/' . $basepart))->sort('FromQuerystring DESC');
+            $basepots = RedirectedURL::get()->filter(['FromBase' => '/' . $basepart])->sort('FromQuerystring DESC');
             foreach ($basepots as $basepot) {
                 // If the To URL ends in a wildcard /*, append the remaining request URL elements
                 if ($basepot->RedirectionType === 'External' && substr($basepot->To, -2) === '/*') {
@@ -143,7 +143,7 @@ class RedirectedURLHandler extends Extension
         if (preg_match('/pages\/default.aspx$/i', $base)) {
             $newBase = preg_replace('/pages\/default.aspx$/i', '', $base);
 
-            $response = new HTTPResponse;
+            $response = new HTTPResponse();
             $response->redirect(Director::absoluteURL($newBase), $this->getRedirectCode());
 
             throw new HTTPResponse_Exception($response);
