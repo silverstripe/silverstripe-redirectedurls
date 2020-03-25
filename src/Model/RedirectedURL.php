@@ -98,64 +98,70 @@ class RedirectedURL extends DataObject implements PermissionProvider
 
     public function getCMSFields()
     {
-        $fields = parent::getCMSFields();
+        $this->beforeUpdateCMSFields(function ($fields) {
+            $fields->removeByName([
+                'FromBase',
+                'FromQuerystring',
+                'RedirectCode',
+                'To',
+                'RedirectionType',
+                'LinkToID',
+            ]);
 
-        $fields->removeByName([
-            'FromBase',
-            'FromQuerystring',
-            'RedirectCode',
-            'To',
-            'RedirectionType',
-            'LinkToID',
-        ]);
+            $fields->addFieldsToTab(
+                'Root.Main',
+                [
+                    $fromBaseField = TextField::create(
+                        'FromBase',
+                        _t(__CLASS__.'.FIELD_TITLE_FROMBASE', 'From base')
+                    ),
+                    $fromQueryStringField = TextField::create(
+                        'FromQuerystring',
+                        _t(__CLASS__.'.FIELD_TITLE_FROMQUERYSTRING', 'From querystring')
+                    ),
+                    $redirectCodeField = DropdownField::create(
+                        'RedirectCode',
+                        _t(__CLASS__.'.FIELD_TITLE_REDIRECTCODE', 'Redirect code'),
+                        $this->getCodes()
+                    ),
+                    $redirectionTypeField = OptionsetField::create(
+                        'RedirectionType',
+                        _t(__CLASS__.'.FIELD_TITLE_REDIRECTIONTYPE', 'Redirect to'),
+                        [
+                            'Internal' => _t(__CLASS__.'.FIELD_REDIRECTIONTYPE_OPTION_INTERNAL', 'A page on your website'),
+                            'External' => _t(__CLASS__.'.FIELD_REDIRECTIONTYPE_OPTION_EXTERNAL', 'Another website'),
+                        ],
+                        'Internal'
+                    ),
+                    $toField = TextField::create(
+                        'To',
+                        _t(__CLASS__.'.FIELD_TITLE_TO', 'To')
+                    ),
+                    $linkToWrapperField = Wrapper::create(TreeDropdownField::create(
+                        'LinkToID',
+                        _t(__CLASS__.'.FIELD_TITLE_LINKTOID', 'Page on your website'),
+                        SiteTree::class
+                    )),
+                ]
+            );
 
-        $fields->addFieldsToTab(
-            'Root.Main',
-            [
-                $fromBaseField = TextField::create(
-                    'FromBase',
-                    _t(__CLASS__.'.FIELD_TITLE_FROMBASE', 'From base')
-                ),
-                $fromQueryStringField = TextField::create(
-                    'FromQuerystring',
-                    _t(__CLASS__.'.FIELD_TITLE_FROMQUERYSTRING', 'From querystring')
-                ),
-                $redirectCodeField = DropdownField::create(
-                    'RedirectCode',
-                    _t(__CLASS__.'.FIELD_TITLE_REDIRECTCODE', 'Redirect code'),
-                    $this->getCodes()
-                ),
-                $redirectionTypeField = OptionsetField::create(
-                    'RedirectionType',
-                    _t(__CLASS__.'.FIELD_TITLE_REDIRECTIONTYPE', 'Redirect to'),
-                    [
-                        'Internal' => _t(__CLASS__.'.FIELD_REDIRECTIONTYPE_OPTION_INTERNAL', 'A page on your website'),
-                        'External' => _t(__CLASS__.'.FIELD_REDIRECTIONTYPE_OPTION_EXTERNAL', 'Another website'),
-                    ],
-                    'Internal'
-                ),
-                $toField = TextField::create(
-                    'To',
-                    _t(__CLASS__.'.FIELD_TITLE_TO', 'To')
-                ),
-                $linkToWrapperField = Wrapper::create(TreeDropdownField::create(
-                    'LinkToID',
-                    _t(__CLASS__.'.FIELD_TITLE_LINKTOID', 'Page on your website'),
-                    SiteTree::class
-                )),
-            ]
-        );
+            $fromBaseField->setDescription(_t(__CLASS__.'.FIELD_DESCRIPTION_FROMBASE', 'e.g. /about-us.html'));
 
-        $fromBaseField->setDescription(_t(__CLASS__.'.FIELD_DESCRIPTION_FROMBASE', 'e.g. /about-us.html'));
-        
-        $fromQueryStringField->setDescription(_t(__CLASS__.'.FIELD_DESCRIPTION_FROMQUERYSTRING', 'e.g. page=1&num=5'));
-        
-        $toField->setDescription(_t(__CLASS__.'.FIELD_DESCRIPTION_TO', 'e.g. /about?something=5'));
-        $toField->displayIf('RedirectionType')->isEqualTo('External');
+            $fromQueryStringField->setDescription(_t(__CLASS__.'.FIELD_DESCRIPTION_FROMQUERYSTRING', 'e.g. page=1&num=5'));
 
-        $linkToWrapperField->displayIf('RedirectionType')->isEqualTo('Internal');
+            $toField->setDescription(_t(__CLASS__.'.FIELD_DESCRIPTION_TO', 'e.g. /about?something=5'));
+            $toField->displayIf('RedirectionType')->isEqualTo('External');
 
-        return $fields;
+            $linkToWrapperField->displayIf('RedirectionType')->isEqualTo('Internal');
+
+            $fromQueryStringField = $fields->fieldByName('Root.Main.FromQuerystring');
+            $fromQueryStringField->setDescription('e.g. page=1&num=5');
+
+            $toField = $fields->fieldByName('Root.Main.To');
+            $toField->setDescription('e.g. /about?something=5');
+        });
+
+        return parent::getCMSFields();
     }
 
     /**

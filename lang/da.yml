@@ -1,0 +1,9 @@
+da:
+  SilverStripe\RedirectedURLs\Admin\RedirectedURLAdmin:
+    MENUTITLE: Viderestillinger
+  SilverStripe\RedirectedURLs\Model\RedirectedURL:
+    PLURALNAME: "Viderestillede URL'er"
+    PLURALS:
+      one: 'En viderestillet URL'
+      other: "{count} viderestillede URL'er"
+    SINGULARNAME: 'Viderestillet URL'
