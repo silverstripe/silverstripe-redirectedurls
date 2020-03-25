@@ -13,6 +13,7 @@ use SilverStripe\Core\Convert;
 use SilverStripe\Core\Extension;
 use SilverStripe\ORM\ArrayList;
 use SilverStripe\RedirectedURLs\Model\RedirectedURL;
+use SilverStripe\Core\Config\Config;
 
 /**
  * Handles the redirection of any url from a controller.
@@ -46,6 +47,23 @@ class RedirectedURLHandler extends Extension
         return $result;
     }
 
+    protected function getRedirectCode($redirectedURL = false)
+    {
+        if ($redirectedURL instanceof RedirectedURL) {
+            if (isset($redirectedURL->RedirectCode) && intval($redirectedURL->RedirectCode) > 0) {
+                return intval($redirectedURL->RedirectCode);
+            }
+        }
+
+        $redirectCode = 301;
+        $defaultRedirectCode = intval(Config::inst()->get(RedirectedURL::class, 'default_redirect_code'));
+        if ($defaultRedirectCode > 0) {
+            $redirectCode = $defaultRedirectCode;
+        }
+
+        return $redirectCode;
+    }
+
     /**
      * @throws HTTPResponse_Exception
      * @param HTTPRequest $request
@@ -74,7 +92,7 @@ class RedirectedURLHandler extends Extension
             $basepots = RedirectedURL::get()->filter(array('FromBase' => '/' . $basepart))->sort('FromQuerystring DESC');
             foreach ($basepots as $basepot) {
                 // If the To URL ends in a wildcard /*, append the remaining request URL elements
-                if (substr($basepot->To, -2) === '/*') {
+                if ($basepot->RedirectionType === 'External' && substr($basepot->To, -2) === '/*') {
                     $basepot->To = substr($basepot->To, 0, -2) . substr($base, strlen($basestr));
                 }
                 $listPotentials->push($basepot);
@@ -115,8 +133,8 @@ class RedirectedURLHandler extends Extension
         // If there's a match, direct!
         if ($matched) {
             $response = new HTTPResponse();
-            $dest = $matched->To;
-            $response->redirect(Director::absoluteURL($dest), 301);
+            $dest = $matched->Link();
+            $response->redirect(Director::absoluteURL($dest), $this->getRedirectCode($matched));
 
             throw new HTTPResponse_Exception($response);
         }
@@ -126,7 +144,7 @@ class RedirectedURLHandler extends Extension
             $newBase = preg_replace('/pages\/default.aspx$/i', '', $base);
 
             $response = new HTTPResponse;
-            $response->redirect(Director::absoluteURL($newBase), 301);
+            $response->redirect(Director::absoluteURL($newBase), $this->getRedirectCode());
 
             throw new HTTPResponse_Exception($response);
         }
