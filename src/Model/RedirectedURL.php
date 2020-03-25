@@ -350,12 +350,16 @@ class RedirectedURL extends DataObject implements PermissionProvider
     {
         // Check external redirect
         if ($this->RedirectionType === 'External') {
-            return $this->To ?: null;
+            return $this->To;
+        } else if (!$this->LinkToID) {
+            // internal but not linked anywhere (e.g static local URL)
+            return $this->To;
         }
 
         // Check internal redirect
         /** @var SiteTree $linkTo */
         $linkTo = $this->LinkToID ? SiteTree::get()->byID($this->LinkToID) : null;
+
         if (empty($linkTo)) {
             return null;
         }

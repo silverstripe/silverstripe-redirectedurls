@@ -23,11 +23,11 @@ class RedirectedURLHandlerTest extends FunctionalTest
         $this->autoFollowRedirection = false;
     }
 
-    public function testHanldeRootRedirectWithExtension()
+    public function testHandleURLRedirectionFromBase()
     {
-        $redirect = $this->objFromFixture(RedirectedURL::class, 'redirect-root-extension');
+        $redirect = $this->objFromFixture(RedirectedURL::class, 'redirect-signups');
+        $response = $this->get('/signups/');
 
-        $response = $this->get($redirect->FromBase);
         $this->assertEquals(301, $response->getStatusCode());
 
         $this->assertEquals(
@@ -36,10 +36,9 @@ class RedirectedURLHandlerTest extends FunctionalTest
         );
     }
 
-    public function testHandleURLRedirectionFromBase()
+    public function testHanldeRootRedirectWithExtension()
     {
-        $redirect = $this->objFromFixture(RedirectedURL::class, 'redirect-signups');
-
+        $redirect = $this->objFromFixture(RedirectedURL::class, 'redirect-root-extension');
         $response = $this->get($redirect->FromBase);
         $this->assertEquals(301, $response->getStatusCode());
 
