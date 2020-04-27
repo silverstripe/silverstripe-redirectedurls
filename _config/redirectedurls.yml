@@ -1,17 +1,29 @@
 ---
-name: redirectedurls
+Name: redirectedurls
 ---
 SilverStripe\Control\RequestHandler:
   extensions:
     - SilverStripe\RedirectedURLs\Extension\RedirectedURLHandler
+
 SilverStripe\CMS\Controllers\ContentController:
   extensions:
     - SilverStripe\RedirectedURLs\Extension\RedirectedURLHandler
+
 SilverStripe\CMS\Controllers\ModelAsController:
   extensions:
     - SilverStripe\RedirectedURLs\Extension\RedirectedURLHandler
+
 SilverStripe\ORM\DatabaseAdmin:
   classname_value_remapping:
     RedirectedURL: 'SilverStripe\RedirectedURLs\Model\RedirectedURL'
+
 SilverStripe\RedirectedURLs\Model\RedirectedURL:
   default_redirect_code: 301
+---
+Name: redirectedurls-assets
+Only:
+  moduleexists: 'silverstripe/assets'
+---
+SilverStripe\Assets\Flysystem\FlysystemAssetStore:
+  extensions:
+    - SilverStripe\RedirectedURLs\Extension\AssetStoreURLHandler
