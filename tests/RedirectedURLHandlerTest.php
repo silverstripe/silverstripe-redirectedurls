@@ -59,19 +59,4 @@ class RedirectedURLHandlerTest extends FunctionalTest
             $response->getHeader('Location')
         );
     }
-
-    public function testArrayToLowercase()
-    {
-        $array = array('Foo' => 'bar', 'baz' => 'QUX');
-
-        $cont = new RedirectedURLHandler();
-
-        $arrayToLowercaseMethod = new ReflectionMethod(RedirectedURLHandler::class, 'arrayToLowercase');
-        $arrayToLowercaseMethod->setAccessible(true);
-
-        $this->assertEquals(
-            array('foo' => 'bar', 'baz' => 'qux'),
-            $arrayToLowercaseMethod->invoke($cont, $array)
-        );
-    }
 }
