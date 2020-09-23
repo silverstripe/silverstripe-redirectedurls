@@ -27,45 +27,6 @@ use SilverStripe\RedirectedURLs\Service\RedirectedURLService;
  */
 class RedirectedURLHandler extends Extension
 {
-
-    /**
-     * Converts an array of key value pairs to lowercase
-     *
-     * @param array $vars key value pairs
-     * @return array
-     */
-    protected function arrayToLowercase($vars)
-    {
-        $result = array();
-
-        foreach ($vars as $k => $v) {
-            if (is_array($v)) {
-                $result[strtolower($k)] = $this->arrayToLowercase($v);
-            } else {
-                $result[strtolower($k)] = strtolower($v);
-            }
-        }
-
-        return $result;
-    }
-
-    protected function getRedirectCode($redirectedURL = false)
-    {
-        if ($redirectedURL instanceof RedirectedURL) {
-            if (isset($redirectedURL->RedirectCode) && intval($redirectedURL->RedirectCode) > 0) {
-                return intval($redirectedURL->RedirectCode);
-            }
-        }
-
-        $redirectCode = 301;
-        $defaultRedirectCode = intval(Config::inst()->get(RedirectedURL::class, 'default_redirect_code'));
-        if ($defaultRedirectCode > 0) {
-            $redirectCode = $defaultRedirectCode;
-        }
-
-        return $redirectCode;
-    }
-
     /**
      * @throws HTTPResponse_Exception
      * @param HTTPRequest $request
