@@ -1,0 +1,9 @@
+sl:
+  SilverStripe\RedirectedURLs\Admin\RedirectedURLAdmin:
+    MENUTITLE: Preusmeritve
+  SilverStripe\RedirectedURLs\Model\RedirectedURL:
+    PLURALNAME: 'Preusmerjeni URL-ji'
+    PLURALS:
+      one: 'Preusmerjeni URL'
+      other: '{count} preusmerjenih URL-jev'
+    SINGULARNAME: 'Preusmerjeni URL'
