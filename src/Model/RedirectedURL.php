@@ -77,14 +77,20 @@ class RedirectedURL extends DataObject implements PermissionProvider
      * @var array
      * @config
      */
-    private static $summary_fields = array(
-        'FromBase' => 'From URL base',
-        'FromQuerystring' => 'From URL query parameters',
-        'To' => 'To URL',
-        'LinkTo.Title' => 'Link To',
-        'RedirectionType' => 'Redirection type',
-        'RedirectCode' => 'Redirect code',
-    );
+    public function summaryFields() {
+        $summaryFields = array(
+            'FromBase' => 'From URL base',
+            'FromQuerystring' => 'URL query parameters',
+            'To' => 'To URL',
+            'LinkTo.Title' => 'Link To',
+            'RedirectionType' => 'Redirection type',
+            'RedirectCode' => 'Redirect code',
+        );
+
+        $this->extend('summary_fields', $summaryFields);
+
+        return $summaryFields;
+    }
 
     /**
      * @var array
@@ -348,36 +354,34 @@ class RedirectedURL extends DataObject implements PermissionProvider
      */
     public function Link()
     {
+        $link = '';
+
         // Check external redirect
         if ($this->RedirectionType === 'External') {
-            return $this->To;
-        } elseif (!$this->LinkToID) {
-            // internal but not linked anywhere (e.g static local URL)
-            return $this->To;
+            $link = $this->To;
+        } elseif ($this->RedirectionType === 'External'){
+            // Check internal redirect
+            /** @var SiteTree $linkTo */
+            $linkTo = SiteTree::get()->byID($this->LinkToID);
+            if($linkTo){
+                // We shouldn't point to ourselves - that would create an infinite loop!  Return null since we have a
+                // bad configuration
+                if (intval($this->ID) !== intval($linkTo->ID)) {
+                    // If we're linking to another redirectorpage then just return the URLSegment, to prevent a cycle of redirector
+                    // pages from causing an infinite loop.  Instead, they will cause a 30x redirection loop in the browser, but
+                    // this can be handled sufficiently gracefully by the browser.
+                    if ($linkTo instanceof RedirectorPage) {
+                        $link = $linkTo->regularLink();
+                    } else {
+                        // For all other pages, just return the link of the page.
+                        $link = $linkTo->RelativeLink();
+                    }
+                }
+            }
         }
 
-        // Check internal redirect
-        /** @var SiteTree $linkTo */
-        $linkTo = SiteTree::get()->byID($this->LinkToID);
+        $this->extend('update_redirect_link', $link);
 
-        if (empty($linkTo)) {
-            return null;
-        }
-
-        // We shouldn't point to ourselves - that would create an infinite loop!  Return null since we have a
-        // bad configuration
-        if (intval($this->ID) === intval($linkTo->ID)) {
-            return null;
-        }
-
-        // If we're linking to another redirectorpage then just return the URLSegment, to prevent a cycle of redirector
-        // pages from causing an infinite loop.  Instead, they will cause a 30x redirection loop in the browser, but
-        // this can be handled sufficiently gracefully by the browser.
-        if ($linkTo instanceof RedirectorPage) {
-            return $linkTo->regularLink();
-        }
-
-        // For all other pages, just return the link of the page.
-        return $linkTo->RelativeLink();
+        return $link;
     }
 }
