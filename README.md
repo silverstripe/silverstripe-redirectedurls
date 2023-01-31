@@ -1,7 +1,6 @@
 Redirected URLs
 ===============
 
-[![Build Status](https://travis-ci.org/silverstripe/silverstripe-redirectedurls.svg?branch=master)](https://travis-ci.org/silverstripe/silverstripe-redirectedurls)
 [![Latest Stable Version](https://poser.pugx.org/silverstripe/redirectedurls/version)](https://packagist.org/packages/silverstripe/redirectedurls)
 [![License](https://poser.pugx.org/silverstripe/redirectedurls/license)](https://packagist.org/packages/silverstripe/redirectedurls)
 [![Monthly Downloads](https://poser.pugx.org/silverstripe/redirectedurls/d/monthly)](https://packagist.org/packages/silverstripe/redirectedurls)
@@ -36,7 +35,7 @@ Installation
 Usage
 -----
  1. Click 'Redirects' in the main menu of the CMS.
- 2. Click 'Add Redirected URL' to create a mapping of an old URL to a new URL on your SilverStripe website.
+ 2. Click 'Add Redirected URL' to create a mapping of an old URL to a new URL on your Silverstripe website.
  3. Enter a 'From Base' which is the URL from your old website (not including the domain name). For example, "/about-us.html".
  4. Alternatively, depending on your old websites URL structure you can redirect based on a query string using the combination of 'From Base' and 'From Querystring' fields. For exmaple, "index.html" as the base and "page=about-us" as the query string.
  5. As a further alternative, you can include a trailing '/\*' for a wildcard match to any file with the same stem. For example, "/about/\*".

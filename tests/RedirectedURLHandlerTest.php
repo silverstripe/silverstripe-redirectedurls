@@ -16,14 +16,14 @@ class RedirectedURLHandlerTest extends FunctionalTest
 {
     protected static $fixture_file = 'RedirectedURLHandlerTest.yml';
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
         $this->autoFollowRedirection = false;
     }
 
-    public function testHandleURLRedirectionFromBase()
+    public function testHandleURLRedirectionFromBase(): void
     {
         $redirect = $this->objFromFixture(RedirectedURL::class, 'redirect-signups');
         $response = $this->get('/signups/');
@@ -36,7 +36,7 @@ class RedirectedURLHandlerTest extends FunctionalTest
         );
     }
 
-    public function testHanldeRootRedirectWithExtension()
+    public function testHanldeRootRedirectWithExtension(): void
     {
         $redirect = $this->objFromFixture(RedirectedURL::class, 'redirect-root-extension');
         $response = $this->get($redirect->FromBase);
@@ -48,7 +48,7 @@ class RedirectedURLHandlerTest extends FunctionalTest
         );
     }
 
-    public function testHandleURLRedirectionWithQueryString()
+    public function testHandleURLRedirectionWithQueryString(): void
     {
         $response = $this->get('query-test-with-query-string?foo=bar');
         $expected = $this->objFromFixture(RedirectedURL::class, 'redirect-with-query');
@@ -60,7 +60,7 @@ class RedirectedURLHandlerTest extends FunctionalTest
         );
     }
 
-    public function testArrayToLowercase()
+    public function testArrayToLowercase(): void
     {
         $array = array('Foo' => 'bar', 'baz' => 'QUX');
 
