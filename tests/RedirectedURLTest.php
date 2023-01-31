@@ -18,13 +18,13 @@ class RedirectedURLTest extends SapphireTest
      */
     protected $model;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->model = RedirectedURL::create();
         parent::setUp();
     }
 
-    public function testSetFromQueryString()
+    public function testSetFromQueryString(): void
     {
         $val = '/test/url?subpage=12';
 
@@ -34,7 +34,7 @@ class RedirectedURLTest extends SapphireTest
         $this->assertEquals('subpage=12', $this->model->FromQuerystring);
     }
 
-    public function testSetFrom()
+    public function testSetFrom(): void
     {
         $val = '/test/url';
 
@@ -44,7 +44,7 @@ class RedirectedURLTest extends SapphireTest
         $this->assertEmpty($this->model->FromQuerystring);
     }
 
-    public function testGetFrom()
+    public function testGetFrom(): void
     {
         $val = '/test/url';
 
@@ -60,7 +60,7 @@ class RedirectedURLTest extends SapphireTest
         $this->assertEquals($val . '?subpage=12', $this->model->getFrom());
     }
 
-    public function testSetFromBase()
+    public function testSetFromBase(): void
     {
         $val = 'test/url';
 
@@ -70,7 +70,7 @@ class RedirectedURLTest extends SapphireTest
     }
 
 
-    public function testFindByFromNoSlash()
+    public function testFindByFromNoSlash(): void
     {
         // Without preceding slash
         $redirect = $this->model->findByFrom('test/url');
@@ -80,7 +80,7 @@ class RedirectedURLTest extends SapphireTest
         $this->assertEquals('/test/target', $redirect->To);
     }
 
-    public function testFindByFromTrailingQuestionmark()
+    public function testFindByFromTrailingQuestionmark(): void
     {
         // With ?
         $redirect = $this->model->findByFrom('/test/url?');
@@ -90,7 +90,7 @@ class RedirectedURLTest extends SapphireTest
         $this->assertEquals('/test/target', $redirect->To);
     }
 
-    public function testFindByFromNormal()
+    public function testFindByFromNormal(): void
     {
         // Same with slash
         $redirect = $this->model->findByFrom('/test/url');
@@ -99,7 +99,7 @@ class RedirectedURLTest extends SapphireTest
         $this->assertEquals('/test/target', $redirect->To);
     }
 
-    public function testFindByFromQueryString()
+    public function testFindByFromQueryString(): void
     {
         // Search for subpage
         $redirect = $this->model->findByFrom('/test/url-2?subpage=12');
@@ -109,7 +109,7 @@ class RedirectedURLTest extends SapphireTest
         $this->assertEquals('/test/target-2', $redirect->To);
     }
 
-    public function testFindByFromNoResult()
+    public function testFindByFromNoResult(): void
     {
         $redirect = $this->model->findByFrom('/test/no-exists');
 
