@@ -12,8 +12,10 @@ use SilverStripe\Core\Convert;
 use SilverStripe\Core\Extensible;
 use SilverStripe\ORM\ArrayList;
 use SilverStripe\RedirectedURLs\Model\RedirectedURL;
+use SilverStripe\RedirectedURLs\Support\Arr;
+use SilverStripe\RedirectedURLs\Support\Code;
 
-class RedirectedURLService
+class RedirectedURLService implements RedirectedURLInterface
 {
     use Extensible, Configurable;
 
@@ -24,7 +26,7 @@ class RedirectedURLService
     public function findBestRedirectedURLMatch(HTTPRequest $request): ?RedirectedURL
     {
         $base = strtolower($request->getURL());
-        $getVars = $this->arrayToLowercase($request->getVars());
+        $getVars = Arr::toLowercase($request->getVars());
 
         // Find all the RedirectedURL objects where the base URL matches.
         // Assumes the base url has no trailing slash.
@@ -89,46 +91,8 @@ class RedirectedURLService
     public function getResponse(RedirectedURL $redirect): HTTPResponse
     {
         $response = HTTPResponse::create()
-            ->redirect(Director::absoluteURL($redirect->Link()), $this->getRedirectCode($redirect));
+            ->redirect(Director::absoluteURL($redirect->Link()), Code::getRedirectCode($redirect));
 
         return $response;
-    }
-
-    /**
-     * Converts an array of key value pairs to lowercase
-     *
-     * @param array $vars key value pairs
-     * @return array
-     */
-    protected function arrayToLowercase($vars)
-    {
-        $result = array();
-
-        foreach ($vars as $k => $v) {
-            if (is_array($v)) {
-                $result[strtolower($k)] = $this->arrayToLowercase($v);
-            } else {
-                $result[strtolower($k)] = strtolower($v);
-            }
-        }
-
-        return $result;
-    }
-
-    public function getRedirectCode($redirectedURL = null)
-    {
-        if ($redirectedURL instanceof RedirectedURL) {
-            if (isset($redirectedURL->RedirectCode) && intval($redirectedURL->RedirectCode) > 0) {
-                return intval($redirectedURL->RedirectCode);
-            }
-        }
-
-        $redirectCode = 301;
-        $defaultRedirectCode = intval(Config::inst()->get(RedirectedURL::class, 'default_redirect_code'));
-        if ($defaultRedirectCode > 0) {
-            $redirectCode = $defaultRedirectCode;
-        }
-
-        return $redirectCode;
     }
 }

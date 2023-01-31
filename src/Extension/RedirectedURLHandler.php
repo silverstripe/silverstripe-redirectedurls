@@ -13,9 +13,11 @@ use SilverStripe\Core\Convert;
 use SilverStripe\Core\Extension;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\ORM\ArrayList;
-use SilverStripe\RedirectedURLs\Model\RedirectedURL;
 use SilverStripe\Core\Config\Config;
+use SilverStripe\RedirectedURLs\Service\RedirectedURLInterface;
 use SilverStripe\RedirectedURLs\Service\RedirectedURLService;
+use SilverStripe\RedirectedURLs\Support\Arr;
+use SilverStripe\RedirectedURLs\Support\Code;
 
 /**
  * Handles the redirection of any url from a controller.
@@ -27,13 +29,30 @@ use SilverStripe\RedirectedURLs\Service\RedirectedURLService;
  */
 class RedirectedURLHandler extends Extension
 {
+
+    /**
+     * Converts an array of key value pairs to lowercase
+     *
+     * @param array $vars key value pairs
+     * @return array
+     */
+    protected function arrayToLowercase($vars)
+    {
+        return Arr::toLowercase((array) $vars);
+    }
+
+    protected function getRedirectCode($redirectedURL = false)
+    {
+        return Code::getRedirectCode($redirectedURL);
+    }
+
     /**
      * @throws HTTPResponse_Exception
      * @param HTTPRequest $request
      */
     public function onBeforeHTTPError404(HTTPRequest $request)
     {
-        /** @var RedirectedURLService $service */
+        /** @var RedirectedURLInterface $service */
         $service = Injector::inst()->get(RedirectedURLService::class);
 
         $match = $service->findBestRedirectedURLMatch($request);

@@ -249,8 +249,8 @@ class RedirectedURL extends DataObject implements PermissionProvider
      */
     public function setFromQuerystring($val)
     {
-        $val = rtrim($val, '?');
-        $this->setField('FromQuerystring', strtolower($val));
+        $val = rtrim((string) $val, '?');
+        $this->setField('FromQuerystring', strtolower((string) $val));
         return $this;
     }
 

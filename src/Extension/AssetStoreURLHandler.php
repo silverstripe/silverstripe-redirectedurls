@@ -7,6 +7,7 @@ use SilverStripe\Control\HTTPResponse;
 use SilverStripe\Core\Extension;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\RedirectedURLs\Model\RedirectedURL;
+use SilverStripe\RedirectedURLs\Service\RedirectedURLInterface;
 use SilverStripe\RedirectedURLs\Service\RedirectedURLService;
 
 /**
@@ -35,7 +36,7 @@ class AssetStoreURLHandler extends Extension
                 $controller = Controller::curr();
                 $request = $controller->getRequest();
 
-                /** @var RedirectedURLService $service */
+                /** @var RedirectedURLInterface $service */
                 $service = Injector::inst()->get(RedirectedURLService::class);
                 $match = $service->findBestRedirectedURLMatch($request);
 
