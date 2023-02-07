@@ -17,7 +17,7 @@ use SilverStripe\Core\Config\Config;
 use SilverStripe\RedirectedURLs\Service\RedirectedURLInterface;
 use SilverStripe\RedirectedURLs\Service\RedirectedURLService;
 use SilverStripe\RedirectedURLs\Support\Arr;
-use SilverStripe\RedirectedURLs\Support\Code;
+use SilverStripe\RedirectedURLs\Support\StatusCode;
 
 /**
  * Handles the redirection of any url from a controller.
@@ -43,7 +43,7 @@ class RedirectedURLHandler extends Extension
 
     protected function getRedirectCode($redirectedURL = false)
     {
-        return Code::getRedirectCode($redirectedURL);
+        return StatusCode::getRedirectCode($redirectedURL);
     }
 
     /**
@@ -52,8 +52,7 @@ class RedirectedURLHandler extends Extension
      */
     public function onBeforeHTTPError404(HTTPRequest $request)
     {
-        /** @var RedirectedURLInterface $service */
-        $service = Injector::inst()->get(RedirectedURLService::class);
+        $service = RedirectedURLService::create();
 
         $match = $service->findBestRedirectedURLMatch($request);
 

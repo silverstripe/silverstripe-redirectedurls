@@ -5,19 +5,18 @@ namespace SilverStripe\RedirectedURLs\Service;
 use SilverStripe\Control\Director;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Control\HTTPResponse;
-use SilverStripe\Control\HTTPResponse_Exception;
-use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Config\Configurable;
 use SilverStripe\Core\Convert;
 use SilverStripe\Core\Extensible;
+use SilverStripe\Core\Injector\Injectable;
 use SilverStripe\ORM\ArrayList;
 use SilverStripe\RedirectedURLs\Model\RedirectedURL;
 use SilverStripe\RedirectedURLs\Support\Arr;
-use SilverStripe\RedirectedURLs\Support\Code;
+use SilverStripe\RedirectedURLs\Support\StatusCode;
 
 class RedirectedURLService implements RedirectedURLInterface
 {
-    use Extensible, Configurable;
+    use Extensible, Configurable, Injectable;
 
     /**
      * @param HTTPRequest $request
@@ -34,53 +33,61 @@ class RedirectedURLService implements RedirectedURLInterface
 
         $potentials = RedirectedURL::get()->filter(['FromBase' => '/' . $SQL_base])->sort('FromQuerystring DESC');
         $listPotentials = new ArrayList();
+
         foreach ($potentials as $potential) {
             $listPotentials->push($potential);
         }
 
         // Find any matching FromBase elements terminating in a wildcard /*
-        $baseparts = explode('/', $base);
-        for ($pos = count($baseparts) - 1; $pos >= 0; $pos--) {
-            $basestr = implode('/', array_slice($baseparts, 0, $pos));
-            $basepart = Convert::raw2sql($basestr . '/*');
-            $basepots = RedirectedURL::get()->filter(['FromBase' => '/' . $basepart])->sort('FromQuerystring DESC');
-            foreach ($basepots as $basepot) {
+        $baseParts = explode('/', $base);
+
+        for ($pos = count($baseParts) - 1; $pos >= 0; $pos--) {
+            $baseStr = implode('/', array_slice($baseParts, 0, $pos));
+            $basePart = Convert::raw2sql($baseStr . '/*');
+            $basePots = RedirectedURL::get()->filter(['FromBase' => '/' . $basePart])->sort('FromQuerystring DESC');
+
+            foreach ($basePots as $basePot) {
                 // If the To URL ends in a wildcard /*, append the remaining request URL elements
-                if ($basepot->RedirectionType === 'External' && substr($basepot->To, -2) === '/*') {
-                    $basepot->To = substr($basepot->To, 0, -2) . substr($base, strlen($basestr));
+                if ($basePot->RedirectionType === 'External' && substr($basePot->To, -2) === '/*') {
+                    $basePot->To = substr($basePot->To, 0, -2) . substr($base, strlen($baseStr));
                 }
-                $listPotentials->push($basepot);
+
+                $listPotentials->push($basePot);
             }
+        }
+
+        // If there are no potential matches, then we can exit early and return null
+        if ($listPotentials->count() === 0) {
+            return null;
         }
 
         $matched = null;
 
-        // Then check the get vars, ignoring any additional get vars that
-        // this URL may have
-        if ($listPotentials) {
-            foreach ($listPotentials as $potential) {
-                $allVarsMatch = true;
+        // Then check the get vars, ignoring any additional get vars that this URL may have
+        foreach ($listPotentials as $potential) {
+            $allVarsMatch = true;
 
-                if ($potential->FromQuerystring) {
-                    $reqVars = array();
-                    parse_str($potential->FromQuerystring, $reqVars);
+            if ($potential->FromQuerystring) {
+                $reqVars = array();
+                parse_str($potential->FromQuerystring, $reqVars);
 
-                    foreach ($reqVars as $k => $v) {
-                        if (!$v) {
-                            continue;
-                        }
+                foreach ($reqVars as $k => $v) {
+                    if (!$v) {
+                        continue;
+                    }
 
-                        if (!isset($getVars[$k]) || $v != $getVars[$k]) {
-                            $allVarsMatch = false;
-                            break;
-                        }
+                    if (!isset($getVars[$k]) || $v != $getVars[$k]) {
+                        $allVarsMatch = false;
+
+                        break;
                     }
                 }
+            }
 
-                if ($allVarsMatch) {
-                    $matched = $potential;
-                    break;
-                }
+            if ($allVarsMatch) {
+                $matched = $potential;
+
+                break;
             }
         }
 
@@ -91,7 +98,7 @@ class RedirectedURLService implements RedirectedURLInterface
     public function getResponse(RedirectedURL $redirect): HTTPResponse
     {
         $response = HTTPResponse::create()
-            ->redirect(Director::absoluteURL($redirect->Link()), Code::getRedirectCode($redirect));
+            ->redirect(Director::absoluteURL($redirect->Link()), StatusCode::getRedirectCode($redirect));
 
         return $response;
     }
