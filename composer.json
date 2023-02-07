@@ -16,6 +16,7 @@
         }
     ],
     "require": {
+        "php": "^7.4 || ^8",
         "silverstripe/framework": "^4",
         "silverstripe/cms": "^4",
 		"unclecheese/display-logic": "~2"
