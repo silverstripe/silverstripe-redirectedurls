@@ -15,7 +15,7 @@ interface RedirectedURLInterface
 
     /**
      * Get an instance of HTTP response using the data from the redirected URL object.
-     * The returned response object is to replace the current HTTP response (ie. redirect to new page/file).
+     * The returned response object is to replace the current HTTP response (i.e. redirect to new page/file).
      */
     public function getResponse(RedirectedURL $redirect): HTTPResponse;
 }

@@ -1,17 +1,11 @@
 <?php
 
-namespace SilverStripe\RedirectedURLs\Test;
+namespace SilverStripe\RedirectedURLs\Tests\Extension;
 
-use ReflectionMethod;
 use SilverStripe\Control\Director;
 use SilverStripe\Dev\FunctionalTest;
-use SilverStripe\RedirectedURLs\Extension\RedirectedURLHandler;
 use SilverStripe\RedirectedURLs\Model\RedirectedURL;
 
-/**
- * @package redirectedurls
- * @subpackage tests
- */
 class RedirectedURLHandlerTest extends FunctionalTest
 {
     protected static $fixture_file = 'RedirectedURLHandlerTest.yml';

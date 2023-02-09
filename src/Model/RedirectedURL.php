@@ -2,6 +2,8 @@
 
 namespace SilverStripe\RedirectedURLs\Model;
 
+use SilverStripe\AssetAdmin\Forms\UploadField;
+use SilverStripe\Assets\File;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\Permission;
@@ -18,79 +20,61 @@ use SilverStripe\Forms\DropdownField;
 /**
  * Specifies one URL redirection
  *
- * @package redirectedurls
- * @author sam@silverstripe.com
  * @property string $FromBase
  * @property string $FromQuerystring
  * @property string $To
+ * @property string $RedirectionType
+ * @property int $RedirectCode
+ * @property int $LinkToID
+ * @property int $LinkToAssetID
+ * @method SiteTree LinkTo()
+ * @method File LinkToAsset()
  */
 class RedirectedURL extends DataObject implements PermissionProvider
 {
 
-    /**
-     * @var string
-     * @config
-     */
-    private static $singular_name = 'Redirected URL';
+    private const REDIRECTION_TYPE_ASSET = 'Asset';
+    private const REDIRECTION_TYPE_EXTERNAL = 'External';
+    private const REDIRECTION_TYPE_INTERNAL = 'Internal';
 
-    /**
-     * @var string
-     * @config
-     */
-    private static $table_name = 'RedirectedURL';
+    private static string $singular_name = 'Redirected URL';
 
-    /**
-     * @var array
-     * @config
-     */
-    private static $db = array(
+    private static string $table_name = 'RedirectedURL';
+
+    private static array $db = [
         'FromBase' => 'Varchar(255)',
         'FromQuerystring' => 'Varchar(255)',
         'To' => 'Varchar(255)',
-        'RedirectionType' => 'Enum("Internal,External", "Internal")',
+        'RedirectionType' => 'Enum("Internal,External,Asset", "Internal")',
         'RedirectCode' => 'Int',
-    );
+    ];
 
-    /**
-     * @var array
-     * @config
-     */
-    private static $has_one = array(
+    private static array $has_one = [
         'LinkTo' => SiteTree::class,
-    );
+        'LinkToAsset' => File::class,
+    ];
 
-    /**
-     * @var array
-     * @config
-     */
-    private static $indexes = array(
-        'From' => array(
+    private static $indexes = [
+        'From' => [
             'type' => 'unique',
-            'columns' => array(
+            'columns' => [
                 'FromBase',
                 'FromQuerystring',
-            ),
-        ),
-    );
+            ],
+        ],
+    ];
 
-    /**
-     * @var array
-     * @config
-     */
-    private static $summary_fields = array(
+    private static array $summary_fields = [
         'FromBase' => 'From URL base',
         'FromQuerystring' => 'From URL query parameters',
         'To' => 'To URL',
         'LinkTo.Title' => 'Link To',
+        'LinkToAsset.Title' => 'Link To File',
         'RedirectionType' => 'Redirection type',
         'RedirectCode' => 'Redirect code',
-    );
+    ];
 
-    /**
-     * @var array
-     * @config
-     */
-    private static $searchable_fields = array(
+    private static array $searchable_fields = array(
         'FromBase',
         'FromQuerystring',
         'To',
@@ -106,6 +90,7 @@ class RedirectedURL extends DataObject implements PermissionProvider
                 'To',
                 'RedirectionType',
                 'LinkToID',
+                'LinkToAsset',
             ]);
 
             $fields->addFieldsToTab(
@@ -113,57 +98,65 @@ class RedirectedURL extends DataObject implements PermissionProvider
                 [
                     $fromBaseField = TextField::create(
                         'FromBase',
-                        _t(__CLASS__.'.FIELD_TITLE_FROMBASE', 'From base')
+                        _t(static::class.'.FIELD_TITLE_FROMBASE', 'From base')
                     ),
                     $fromQueryStringField = TextField::create(
                         'FromQuerystring',
-                        _t(__CLASS__.'.FIELD_TITLE_FROMQUERYSTRING', 'From querystring')
+                        _t(static::class.'.FIELD_TITLE_FROMQUERYSTRING', 'From querystring')
                     ),
-                    $redirectCodeField = DropdownField::create(
+                    DropdownField::create(
                         'RedirectCode',
-                        _t(__CLASS__.'.FIELD_TITLE_REDIRECTCODE', 'Redirect code'),
+                        _t(static::class.'.FIELD_TITLE_REDIRECTCODE', 'Redirect code'),
                         $this->getCodes()
                     ),
-                    $redirectionTypeField = OptionsetField::create(
+                    OptionsetField::create(
                         'RedirectionType',
-                        _t(__CLASS__.'.FIELD_TITLE_REDIRECTIONTYPE', 'Redirect to'),
+                        _t(static::class.'.FIELD_TITLE_REDIRECTIONTYPE', 'Redirect to'),
                         [
-                            'Internal' =>
-                                _t(__CLASS__.'.FIELD_REDIRECTIONTYPE_OPTION_INTERNAL', 'A page on your website'),
-                            'External' =>
-                                _t(__CLASS__.'.FIELD_REDIRECTIONTYPE_OPTION_EXTERNAL', 'Another website'),
+                            self::REDIRECTION_TYPE_INTERNAL =>
+                                _t(static::class.'.FIELD_REDIRECTIONTYPE_OPTION_INTERNAL', 'A page on your website'),
+                            self::REDIRECTION_TYPE_EXTERNAL =>
+                                _t(static::class.'.FIELD_REDIRECTIONTYPE_OPTION_EXTERNAL', 'Another website'),
+                            self::REDIRECTION_TYPE_ASSET =>
+                                _t(static::class.'.FIELD_REDIRECTIONTYPE_OPTION_ASSET', 'An asset on your website'),
                         ],
-                        'Internal'
+                        self::REDIRECTION_TYPE_INTERNAL
                     ),
                     $toField = TextField::create(
                         'To',
-                        _t(__CLASS__.'.FIELD_TITLE_TO', 'To')
+                        _t(static::class.'.FIELD_TITLE_TO', 'To')
                     ),
                     $linkToWrapperField = Wrapper::create(TreeDropdownField::create(
                         'LinkToID',
-                        _t(__CLASS__.'.FIELD_TITLE_LINKTOID', 'Page on your website'),
+                        _t(static::class.'.FIELD_TITLE_LINKTOID', 'Page on your website'),
                         SiteTree::class
+                    )),
+                    $linkToAssetWrapperField = Wrapper::create(UploadField::create(
+                        'LinkToAsset',
+                        _t(static::class.'.FIELD_TITLE_LINKTOASSETID', 'Asset on your website')
                     )),
                 ]
             );
 
-            $fromBaseField->setDescription(_t(__CLASS__.'.FIELD_DESCRIPTION_FROMBASE', 'e.g. /about-us.html'));
+            $fromBaseField->setDescription(_t(static::class.'.FIELD_DESCRIPTION_FROMBASE', 'e.g. /about-us.html'));
 
             $fromQueryStringField->setDescription(
-                _t(__CLASS__.'.FIELD_DESCRIPTION_FROMQUERYSTRING', 'e.g. page=1&num=5')
+                _t(static::class.'.FIELD_DESCRIPTION_FROMQUERYSTRING', 'e.g. page=1&num=5')
             );
 
-            $toField->setDescription(_t(__CLASS__.'.FIELD_DESCRIPTION_TO', 'e.g. /about?something=5'));
-            $toField->displayIf('RedirectionType')->isEqualTo('External');
+            $toField->setDescription(_t(static::class.'.FIELD_DESCRIPTION_TO', 'e.g. /about?something=5'));
+            $toField->displayIf('RedirectionType')->isEqualTo(self::REDIRECTION_TYPE_EXTERNAL);
 
-            $linkToWrapperField->displayIf('RedirectionType')->isEqualTo('Internal');
+            $linkToWrapperField->displayIf('RedirectionType')->isEqualTo(self::REDIRECTION_TYPE_INTERNAL);
+
+            $linkToAssetWrapperField->displayIf('RedirectionType')->isEqualTo(self::REDIRECTION_TYPE_ASSET);
         });
 
         return parent::getCMSFields();
     }
 
     /**
-     * @return int
+     * @return void
      */
     public function populateDefaults()
     {
@@ -191,8 +184,8 @@ class RedirectedURL extends DataObject implements PermissionProvider
     protected function getCodes()
     {
         return [
-            301 => _t(__CLASS__.'.CODE_301', '301 - Permanent'),
-            302 => _t(__CLASS__.'.CODE_302', '302 - Temporary'),
+            301 => _t(static::class.'.CODE_301', '301 - Permanent'),
+            302 => _t(static::class.'.CODE_302', '302 - Temporary'),
         ];
     }
 
@@ -348,25 +341,28 @@ class RedirectedURL extends DataObject implements PermissionProvider
      */
     public function Link()
     {
-        // Check external redirect
-        if ($this->RedirectionType === 'External') {
-            return $this->To;
-        } elseif (!$this->LinkToID) {
-            // internal but not linked anywhere (e.g static local URL)
-            return $this->To;
+        switch ($this->RedirectionType) {
+            case self::REDIRECTION_TYPE_INTERNAL:
+                return $this->getLinkToLink();
+            case self::REDIRECTION_TYPE_ASSET:
+                return $this->getLinkToAssetLink();
+            default:
+                return $this->To;
         }
+    }
 
+    private function getLinkToLink(): ?string
+    {
         // Check internal redirect
-        /** @var SiteTree $linkTo */
-        $linkTo = SiteTree::get()->byID($this->LinkToID);
+        $linkTo = $this->LinkTo();
 
-        if (empty($linkTo)) {
+        if (!$linkTo || !$linkTo->exists()) {
             return null;
         }
 
         // We shouldn't point to ourselves - that would create an infinite loop!  Return null since we have a
         // bad configuration
-        if (intval($this->ID) === intval($linkTo->ID)) {
+        if ($this->ID === $linkTo->ID) {
             return null;
         }
 
@@ -379,5 +375,23 @@ class RedirectedURL extends DataObject implements PermissionProvider
 
         // For all other pages, just return the link of the page.
         return $linkTo->RelativeLink();
+    }
+
+    private function getLinkToAssetLink(): ?string
+    {
+        $linkToAsset = $this->LinkToAsset();
+
+        // Note: exists() includes checking that the file behind this Asset exists in the filesystem
+        if (!$linkToAsset || !$linkToAsset->exists()) {
+            return null;
+        }
+
+        // We shouldn't point to ourselves - that would create an infinite loop!  Return null since we have a
+        // bad configuration
+        if ($this->ID === $linkToAsset->ID) {
+            return null;
+        }
+
+        return $linkToAsset->Link();
     }
 }

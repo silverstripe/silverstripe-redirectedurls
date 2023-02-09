@@ -1,0 +1,25 @@
+SilverStripe\CMS\Model\SiteTree:
+  page1:
+    Title: Page 1
+    URLSegment: page-1
+
+SilverStripe\Assets\File:
+  file1:
+    Title: File1
+
+SilverStripe\RedirectedURLs\Model\RedirectedURL:
+  redirect1:
+    FromBase: /test/url
+    To: /test/target
+  redirect2:
+    FromBase: /test/url-2
+    FromQuerystring: subpage=12
+    To: /test/target-2
+  redirect3:
+    FromBase: /test/url-3
+    RedirectionType: Internal
+    LinkTo: =>SilverStripe\CMS\Model\SiteTree.page1
+  redirect4:
+    FromBase: /test/url-4
+    RedirectionType: Asset
+    LinkToAsset: =>SilverStripe\Assets\File.file1
