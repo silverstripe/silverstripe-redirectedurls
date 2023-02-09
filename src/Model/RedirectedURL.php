@@ -341,14 +341,23 @@ class RedirectedURL extends DataObject implements PermissionProvider
      */
     public function Link()
     {
-        switch ($this->RedirectionType) {
-            case self::REDIRECTION_TYPE_INTERNAL:
-                return $this->getLinkToLink();
-            case self::REDIRECTION_TYPE_ASSET:
-                return $this->getLinkToAssetLink();
-            default:
-                return $this->To;
+        // If the type is External then we can return our $To value immediately
+        if ($this->RedirectionType === self::REDIRECTION_TYPE_EXTERNAL) {
+            return $this->To;
         }
+
+        // If the type is Internal or Asset, then we will attempt to grab the appropriate link from that DB record
+        $link = $this->RedirectionType === self::REDIRECTION_TYPE_INTERNAL
+            ? $this->getLinkToLink()
+            : $this->getLinkToAssetLink();
+
+        // If we are able to determine a Link, then we'll return that
+        if ($link) {
+            return $link;
+        }
+
+        // If we were unable to determine a Link, then we'll fallback to our $To value, in case there is one there
+        return $this->To;
     }
 
     private function getLinkToLink(): ?string
