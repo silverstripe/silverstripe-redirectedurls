@@ -1,17 +1,11 @@
 <?php
 
-namespace SilverStripe\RedirectedURLs\Test;
+namespace SilverStripe\RedirectedURLs\Tests\Extension;
 
-use ReflectionMethod;
 use SilverStripe\Control\Director;
 use SilverStripe\Dev\FunctionalTest;
-use SilverStripe\RedirectedURLs\Extension\RedirectedURLHandler;
 use SilverStripe\RedirectedURLs\Model\RedirectedURL;
 
-/**
- * @package redirectedurls
- * @subpackage tests
- */
 class RedirectedURLHandlerTest extends FunctionalTest
 {
     protected static $fixture_file = 'RedirectedURLHandlerTest.yml';
@@ -57,21 +51,6 @@ class RedirectedURLHandlerTest extends FunctionalTest
         $this->assertEquals(
             Director::absoluteURL($expected->To),
             $response->getHeader('Location')
-        );
-    }
-
-    public function testArrayToLowercase(): void
-    {
-        $array = array('Foo' => 'bar', 'baz' => 'QUX');
-
-        $cont = new RedirectedURLHandler();
-
-        $arrayToLowercaseMethod = new ReflectionMethod(RedirectedURLHandler::class, 'arrayToLowercase');
-        $arrayToLowercaseMethod->setAccessible(true);
-
-        $this->assertEquals(
-            array('foo' => 'bar', 'baz' => 'qux'),
-            $arrayToLowercaseMethod->invoke($cont, $array)
         );
     }
 }

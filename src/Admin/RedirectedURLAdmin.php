@@ -9,39 +9,19 @@ use SilverStripe\RedirectedURLs\Model\RedirectedURL;
 
 /**
  * Provides CMS Administration of {@link: RedirectedURL} objects
- *
- * @package redirectedurls
- * @author sam@silverstripe.com
- * @author scienceninjas@silverstripe.com
  */
 class RedirectedURLAdmin extends ModelAdmin
 {
 
-    /**
-     * @var string
-     * @config
-     */
-    private static $url_segment = 'redirects';
+    private static string $url_segment = 'redirects';
 
-    /**
-     * @var string
-     * @config
-     */
-    private static $menu_title = 'Redirects';
+    private static string $menu_title = 'Redirects';
 
-    /**
-     * @var string
-     * @config
-     */
-    private static $menu_icon = 'silverstripe/redirectedurls:images/redirect.svg';
+    private static string $menu_icon = 'silverstripe/redirectedurls:images/redirect.svg';
 
-    /**
-     * @var array
-     * @config
-     */
-    private static $managed_models = array(
+    private static array $managed_models = [
         RedirectedURL::class,
-    );
+    ];
 
     /**
      * Overridden to add duplicate checking to the bulkloader to prevent
@@ -57,6 +37,7 @@ class RedirectedURLAdmin extends ModelAdmin
         $importer->duplicateChecks = [
             'FromBase' => ['callback' => 'findByFrom'],
         ];
+
         return [
             RedirectedURL::class => $importer
         ];
@@ -73,9 +54,11 @@ class RedirectedURLAdmin extends ModelAdmin
     public function getExportFields()
     {
         $fields = array();
+
         foreach (DataObject::getSchema()->databaseFields($this->modelClass) as $field => $spec) {
             $fields[$field] = $field;
         }
+
         return $fields;
     }
 }

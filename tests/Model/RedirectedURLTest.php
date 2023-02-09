@@ -1,7 +1,8 @@
 <?php
 
-namespace SilverStripe\RedirectedURLs\Test;
+namespace SilverStripe\RedirectedURLs\Tests\Model;
 
+use SilverStripe\Assets\File;
 use SilverStripe\Dev\SapphireTest;
 use SilverStripe\RedirectedURLs\Model\RedirectedURL;
 
@@ -21,6 +22,7 @@ class RedirectedURLTest extends SapphireTest
     protected function setUp(): void
     {
         $this->model = RedirectedURL::create();
+
         parent::setUp();
     }
 
@@ -114,5 +116,24 @@ class RedirectedURLTest extends SapphireTest
         $redirect = $this->model->findByFrom('/test/no-exists');
 
         $this->assertNull($redirect);
+    }
+
+    public function testLinkTo(): void
+    {
+        $redirect = $this->objFromFixture(RedirectedURL::class, 'redirect3');
+
+        $this->assertEquals('page-1/', $redirect->Link());
+    }
+
+    public function testLinkToAsset(): void
+    {
+        $file = $this->objFromFixture(File::class, 'file1');
+        $file->setFromLocalFile(dirname(__FILE__) . '/../resources/600x400.png');
+        $file->write();
+        $file->publishRecursive();
+
+        $redirect = $this->objFromFixture(RedirectedURL::class, 'redirect4');
+
+        $this->assertEquals('/assets/600x400.png', $redirect->Link());
     }
 }
