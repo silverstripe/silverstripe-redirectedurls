@@ -165,7 +165,7 @@ class RedirectedURL extends DataObject implements PermissionProvider
     {
         parent::onBeforeWrite();
 
-        $this->ensureBaseFromValidity($this->FromBase);
+        $this->ensureFromBaseValidity($this->FromBase);
         $this->ensureFromQuerystringValidity($this->FromQuerystring);
     }
 
@@ -186,7 +186,7 @@ class RedirectedURL extends DataObject implements PermissionProvider
             $querystring = null;
         }
 
-        $this->ensureBaseFromValidity($base);
+        $this->ensureFromBaseValidity($base);
         $this->ensureFromQuerystringValidity($querystring);
 
         return $this;
@@ -323,7 +323,7 @@ class RedirectedURL extends DataObject implements PermissionProvider
         return $redirectCodeValue;
     }
 
-    private function ensureBaseFromValidity(?string $fromBase): void
+    private function ensureFromBaseValidity(?string $fromBase): void
     {
         if (!$fromBase) {
             return;
