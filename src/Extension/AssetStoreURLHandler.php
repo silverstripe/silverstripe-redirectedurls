@@ -16,13 +16,12 @@ class AssetStoreURLHandler extends Extension
 {
     /**
      * @var array An array of HTTP status codes that should be acted upon if they are returned by the AssetStore.
-     * @config
      */
     private static array $act_upon = [
         404,
     ];
 
-    public function updateResponse(HTTPResponse &$response, string $asset, array $context = [])
+    public function updateResponse(HTTPResponse &$response, string $asset, array $context = []): void
     {
         // Only change the response if the response provided by FlysystemAssetStore matches one we should act on
         if (!in_array($response->getStatusCode(), $this->owner->config()->act_upon)) {

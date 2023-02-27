@@ -16,13 +16,12 @@
         }
     ],
     "require": {
-        "php": "^7.4 || ^8",
-        "silverstripe/framework": "^4",
-        "silverstripe/cms": "^4",
-		"unclecheese/display-logic": "~2"
+        "php": "^8.1",
+        "silverstripe/cms": "^5",
+        "unclecheese/display-logic": "^3"
     },
     "require-dev": {
-        "silverstripe/recipe-testing": "^2",
+        "silverstripe/recipe-testing": "^3",
         "squizlabs/php_codesniffer": "^3"
     },
     "autoload": {
@@ -43,7 +42,7 @@
             "images"
         ],
         "branch-alias": {
-            "dev-master": "2.x-dev"
+            "dev-master": "3.x-dev"
         },
         "project-files-installed": [
             "behat.yml",

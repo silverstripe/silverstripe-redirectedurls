@@ -23,19 +23,18 @@ class RedirectedURLHandlerTest extends FunctionalTest
         $response = $this->get('/signups/');
 
         $this->assertEquals(301, $response->getStatusCode());
-
         $this->assertEquals(
             Director::absoluteURL($redirect->To),
             $response->getHeader('Location')
         );
     }
 
-    public function testHanldeRootRedirectWithExtension(): void
+    public function testHandleRootRedirectWithExtension(): void
     {
         $redirect = $this->objFromFixture(RedirectedURL::class, 'redirect-root-extension');
         $response = $this->get($redirect->FromBase);
-        $this->assertEquals(301, $response->getStatusCode());
 
+        $this->assertEquals(301, $response->getStatusCode());
         $this->assertEquals(
             Director::absoluteURL($redirect->To),
             $response->getHeader('Location')
@@ -44,8 +43,8 @@ class RedirectedURLHandlerTest extends FunctionalTest
 
     public function testHandleURLRedirectionWithQueryString(): void
     {
-        $response = $this->get('query-test-with-query-string?foo=bar');
         $expected = $this->objFromFixture(RedirectedURL::class, 'redirect-with-query');
+        $response = $this->get('query-test-with-query-string?foo=bar');
 
         $this->assertEquals(301, $response->getStatusCode());
         $this->assertEquals(

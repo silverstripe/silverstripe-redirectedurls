@@ -10,8 +10,8 @@ class StatusCode
     public static function getRedirectCode(?RedirectedURL $redirectedURL = null): int
     {
         if ($redirectedURL instanceof RedirectedURL) {
-            if (isset($redirectedURL->RedirectCode) && (int) $redirectedURL->RedirectCode > 0) {
-                return (int) $redirectedURL->RedirectCode;
+            if (isset($redirectedURL->RedirectCode) && $redirectedURL->RedirectCode > 0) {
+                return $redirectedURL->RedirectCode;
             }
         }
 

@@ -4,18 +4,19 @@ namespace SilverStripe\RedirectedURLs\Model;
 
 use SilverStripe\AssetAdmin\Forms\UploadField;
 use SilverStripe\Assets\File;
+use SilverStripe\CMS\Model\RedirectorPage;
+use SilverStripe\CMS\Model\SiteTree;
+use SilverStripe\Core\Config\Config;
+use SilverStripe\Forms\DropdownField;
+use SilverStripe\Forms\FieldList;
+use SilverStripe\Forms\OptionsetField;
+use SilverStripe\Forms\TextField;
+use SilverStripe\Forms\TreeDropdownField;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\Permission;
 use SilverStripe\Security\PermissionProvider;
-use SilverStripe\Forms\TextField;
-use SilverStripe\CMS\Model\SiteTree;
-use SilverStripe\Forms\OptionsetField;
-use SilverStripe\Forms\TreeDropdownField;
-use SilverStripe\CMS\Model\RedirectorPage;
 use UncleCheese\DisplayLogic\Forms\Wrapper;
-use SilverStripe\Core\Config\Config;
-use SilverStripe\Forms\DropdownField;
 
 /**
  * Specifies one URL redirection
@@ -80,7 +81,7 @@ class RedirectedURL extends DataObject implements PermissionProvider
         'To',
     );
 
-    public function getCMSFields()
+    public function getCMSFields(): FieldList
     {
         $this->beforeUpdateCMSFields(function ($fields) {
             $fields->removeByName([
@@ -155,33 +156,20 @@ class RedirectedURL extends DataObject implements PermissionProvider
         return parent::getCMSFields();
     }
 
-    /**
-     * @return void
-     */
-    public function populateDefaults()
+    public function populateDefaults(): void
     {
         $this->RedirectCode = $this->getRedirectCodeDefault();
     }
 
-    /**
-     * @return int
-     */
-    private function getRedirectCodeDefault()
+    protected function onBeforeWrite()
     {
-        $redirectCodeValue = 301;
+        parent::onBeforeWrite();
 
-        $defaultRedirectCode = intval(Config::inst()->get(RedirectedURL::class, 'default_redirect_code'));
-        if ($defaultRedirectCode > 0) {
-            $redirectCodeValue = $defaultRedirectCode;
-        }
-
-        return $redirectCodeValue;
+        $this->ensureBaseFromValidity($this->FromBase);
+        $this->ensureFromQuerystringValidity($this->FromQuerystring);
     }
 
-    /**
-     * @return array
-     */
-    protected function getCodes()
+    protected function getCodes(): array
     {
         return [
             301 => _t(static::class.'.CODE_301', '301 - Permanent'),
@@ -189,78 +177,46 @@ class RedirectedURL extends DataObject implements PermissionProvider
         ];
     }
 
-    /**
-     * @param string $val
-     * @return $this
-     */
-    public function setFrom($val)
+    public function setFrom(string $val): static
     {
-        if (strpos($val, '?') !== false) {
+        if (str_contains($val, '?')) {
             list($base, $querystring) = explode('?', $val, 2);
         } else {
             $base = $val;
             $querystring = null;
         }
-        $this->setFromBase($base);
-        $this->setFromQuerystring($querystring);
+
+        $this->ensureBaseFromValidity($base);
+        $this->ensureFromQuerystringValidity($querystring);
 
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getFrom()
+    public function getFrom(): string
     {
-        $url = $this->FromBase;
+        $url = $this->FromBase ?? '';
+
         if ($this->FromQuerystring) {
             $url .= "?" . $this->FromQuerystring;
         }
+
         return $url;
-    }
-
-    /**
-     * @param string $val
-     * @return $this
-     */
-    public function setFromBase($val)
-    {
-        if ($val[0] != '/') {
-            $val = "/$val";
-        }
-        if ($val != '/') {
-            $val = rtrim($val, '/');
-        }
-        $val = rtrim($val, '?');
-        $this->setField('FromBase', strtolower($val));
-        return $this;
-    }
-
-    /**
-     * @param string $val
-     * @return $this
-     */
-    public function setFromQuerystring($val)
-    {
-        $val = rtrim((string) $val, '?');
-        $this->setField('FromQuerystring', strtolower((string) $val));
-        return $this;
     }
 
     /**
      * Helper for bulkloader {@link: RedirectedURLAdmin.getModelImporters}
      *
-     * @param string $from The From URL to search
-     * @return self {@link: RedirectedURL}
+     * @param string $from The $From URL to search
      */
-    public function findByFrom($from)
+    public function findByFrom(string $from): ?static
     {
-        if ($from[0] != '/') {
+        if ($from[0] !== '/') {
             $from = "/$from";
         }
+
         $from = rtrim($from, '?');
 
-        if (strpos($from, '?') !== false) {
+        if (str_contains($from, '?')) {
             list($base, $querystring) = explode('?', strtolower($from), 2);
         } else {
             $base = $from;
@@ -278,10 +234,7 @@ class RedirectedURL extends DataObject implements PermissionProvider
         return RedirectedURL::get()->filter($filter)->first();
     }
 
-    /**
-     * @return array
-     */
-    public function providePermissions()
+    public function providePermissions(): array
     {
         return array(
             'REDIRECTEDURLS_CREATE' => array(
@@ -336,10 +289,7 @@ class RedirectedURL extends DataObject implements PermissionProvider
         return Permission::checkMember($member, 'REDIRECTEDURLS_DELETE');
     }
 
-    /**
-     * @return string
-     */
-    public function Link()
+    public function Link(): ?string
     {
         // If the type is External then we can return our $To value immediately
         if ($this->RedirectionType === self::REDIRECTION_TYPE_EXTERNAL) {
@@ -356,8 +306,54 @@ class RedirectedURL extends DataObject implements PermissionProvider
             return $link;
         }
 
-        // If we were unable to determine a Link, then we'll fallback to our $To value, in case there is one there
+        // If we were unable to determine a Link, then we'll fall back to our $To value, in case there is one there
         return $this->To;
+    }
+
+    private function getRedirectCodeDefault(): int
+    {
+        $redirectCodeValue = 301;
+
+        $defaultRedirectCode = intval(Config::inst()->get(RedirectedURL::class, 'default_redirect_code'));
+
+        if ($defaultRedirectCode > 0) {
+            $redirectCodeValue = $defaultRedirectCode;
+        }
+
+        return $redirectCodeValue;
+    }
+
+    private function ensureBaseFromValidity(?string $fromBase): void
+    {
+        if (!$fromBase) {
+            return;
+        }
+
+        // All of our FromBase URLs should be prepended with "/"
+        if ($fromBase[0] !== '/') {
+            $fromBase = "/$fromBase";
+        }
+
+        // Remove any trailing slashes
+        if ($fromBase !== '/') {
+            $fromBase = rtrim($fromBase, '/');
+        }
+
+        // Remove any trailing question marks (empty GET params)
+        $fromBase = rtrim($fromBase, '?');
+
+        // Set our FromBase value to what we know to be valid
+        $this->FromBase = $fromBase;
+    }
+
+    private function ensureFromQuerystringValidity(?string $fromQuerystring): void
+    {
+        if (!$fromQuerystring) {
+            return;
+        }
+
+        $fromQuerystring = rtrim($fromQuerystring, '?');
+        $this->FromQuerystring = strtolower($fromQuerystring);
     }
 
     private function getLinkToLink(): ?string
