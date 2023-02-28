@@ -4,11 +4,11 @@ SilverStripe\RedirectedURLs\Model\RedirectedURL:
     To: /site-info/log-in/
   redirect-with-query:
     FromBase: /query-test-with-query-string
-    FromQueryString: foo=bar
+    FromQuerystring: foo=bar
     To: /query-test-foo
   redirect-with-longer-query:
     FromBase: /query-test-with-query-string
-    FromQueryString: "foo=bar&baz=qux"
+    FromQuerystring: "foo=bar&baz=qux"
   redirect-root-extension:
     FromBase: /some_old_page.html
     To: /newpage

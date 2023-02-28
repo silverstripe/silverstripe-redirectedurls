@@ -31,7 +31,7 @@ class RedirectedURLAdmin extends ModelAdmin
      *
      * @return array Map of model class names to importer instances
      */
-    public function getModelImporters()
+    public function getModelImporters(): array
     {
         $importer = CsvBulkLoader::create(RedirectedURL::class);
         $importer->duplicateChecks = [
@@ -48,10 +48,8 @@ class RedirectedURLAdmin extends ModelAdmin
      *
      * To prevent field name conversion in DataObject::summaryFields() during export
      * e.g. 'FromBase' is output as 'From Base'
-     *
-     * @return array
      */
-    public function getExportFields()
+    public function getExportFields(): array
     {
         $fields = array();
 

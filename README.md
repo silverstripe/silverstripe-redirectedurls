@@ -19,12 +19,22 @@ admin included.
 The redirection is implemented as a plug-in to the 404 handler, which means that you can't create a
 redirection for a page that already exists on the site.
 
+## Requirements
+
+* PHP `^8.1`
+* Silverstripe CMS `^5`
+
+Legacy:
+
+* Silverstripe CMS `^4`: `^2` tags
+* Silverstripe CMS `^3`: `^1` tags
+
 ## Installation
 
 - Use composer to run the following in the command line:
 
 ```
-  composer require silverstripe/redirectedurls dev-master
+  composer require silverstripe/redirectedurls
 ```
 
 - Then run **dev/build** (http://www.mysite.com/dev/build)

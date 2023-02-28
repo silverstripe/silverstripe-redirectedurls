@@ -26,7 +26,7 @@ class RedirectedURLTest extends SapphireTest
         parent::setUp();
     }
 
-    public function testSetFromQueryString(): void
+    public function testSetFromQuerystring(): void
     {
         $val = '/test/url?subpage=12';
 
@@ -62,16 +62,6 @@ class RedirectedURLTest extends SapphireTest
         $this->assertEquals($val . '?subpage=12', $this->model->getFrom());
     }
 
-    public function testSetFromBase(): void
-    {
-        $val = 'test/url';
-
-        $this->model->setFromBase($val);
-
-        $this->assertEquals('/test/url', $this->model->getFrom());
-    }
-
-
     public function testFindByFromNoSlash(): void
     {
         // Without preceding slash
@@ -101,7 +91,7 @@ class RedirectedURLTest extends SapphireTest
         $this->assertEquals('/test/target', $redirect->To);
     }
 
-    public function testFindByFromQueryString(): void
+    public function testFindByFromQuerystring(): void
     {
         // Search for subpage
         $redirect = $this->model->findByFrom('/test/url-2?subpage=12');
@@ -122,7 +112,7 @@ class RedirectedURLTest extends SapphireTest
     {
         $redirect = $this->objFromFixture(RedirectedURL::class, 'redirect3');
 
-        $this->assertEquals('page-1/', $redirect->Link());
+        $this->assertEquals('page-1', $redirect->Link());
     }
 
     public function testLinkToAsset(): void

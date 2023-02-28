@@ -16,12 +16,10 @@ use SilverStripe\RedirectedURLs\Support\StatusCode;
 
 class RedirectedURLService implements RedirectedURLInterface
 {
-    use Extensible, Configurable, Injectable;
+    use Extensible;
+    use Configurable;
+    use Injectable;
 
-    /**
-     * @param HTTPRequest $request
-     * @return RedirectedURL|null
-     */
     public function findBestRedirectedURLMatch(HTTPRequest $request): ?RedirectedURL
     {
         $base = strtolower($request->getURL());
@@ -32,6 +30,7 @@ class RedirectedURLService implements RedirectedURLInterface
         $SQL_base = Convert::raw2sql(rtrim($base, '/'));
 
         $potentials = RedirectedURL::get()->filter(['FromBase' => '/' . $SQL_base])->sort('FromQuerystring DESC');
+        /** @var ArrayList|RedirectedURL[] $listPotentials */
         $listPotentials = new ArrayList();
 
         foreach ($potentials as $potential) {
@@ -98,7 +97,7 @@ class RedirectedURLService implements RedirectedURLInterface
     public function getResponse(RedirectedURL $redirect): HTTPResponse
     {
         $response = HTTPResponse::create()
-            ->redirect(Director::absoluteURL($redirect->Link()), StatusCode::getRedirectCode($redirect));
+            ->redirect(Director::absoluteURL($redirect->Link() ?? ''), StatusCode::getRedirectCode($redirect));
 
         return $response;
     }
