@@ -365,12 +365,6 @@ class RedirectedURL extends DataObject implements PermissionProvider
             return null;
         }
 
-        // We shouldn't point to ourselves - that would create an infinite loop!  Return null since we have a
-        // bad configuration
-        if ($this->ID === $linkTo->ID) {
-            return null;
-        }
-
         // If we're linking to another redirectorpage then just return the URLSegment, to prevent a cycle of redirector
         // pages from causing an infinite loop.  Instead, they will cause a 30x redirection loop in the browser, but
         // this can be handled sufficiently gracefully by the browser.
@@ -388,12 +382,6 @@ class RedirectedURL extends DataObject implements PermissionProvider
 
         // Note: exists() includes checking that the file behind this Asset exists in the filesystem
         if (!$linkToAsset || !$linkToAsset->exists()) {
-            return null;
-        }
-
-        // We shouldn't point to ourselves - that would create an infinite loop!  Return null since we have a
-        // bad configuration
-        if ($this->ID === $linkToAsset->ID) {
             return null;
         }
 
