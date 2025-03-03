@@ -6,6 +6,7 @@ use SilverStripe\AssetAdmin\Forms\UploadField;
 use SilverStripe\Assets\File;
 use SilverStripe\CMS\Model\RedirectorPage;
 use SilverStripe\CMS\Model\SiteTree;
+use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Forms\DropdownField;
 use SilverStripe\Forms\FieldList;
@@ -386,5 +387,11 @@ class RedirectedURL extends DataObject implements PermissionProvider
         }
 
         return $linkToAsset->Link();
+    }
+
+
+    public function filterBestRedirectedURLMatch(): bool
+    {
+        return true;
     }
 }

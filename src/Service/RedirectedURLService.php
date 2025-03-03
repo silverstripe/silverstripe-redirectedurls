@@ -30,10 +30,15 @@ class RedirectedURLService implements RedirectedURLInterface
         $SQL_base = Convert::raw2sql(rtrim($base, '/'));
 
         $potentials = RedirectedURL::get()->filter(['FromBase' => '/' . $SQL_base])->sort('FromQuerystring DESC');
+
         /** @var ArrayList|RedirectedURL[] $listPotentials */
         $listPotentials = new ArrayList();
 
         foreach ($potentials as $potential) {
+            if (min($potential->invokeWithExtensions('filterBestRedirectedURLMatch')) === false) {
+                continue;
+            }
+
             $listPotentials->push($potential);
         }
 
