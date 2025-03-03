@@ -43,9 +43,9 @@ class RedirectedURL extends DataObject implements PermissionProvider
     private static string $table_name = 'RedirectedURL';
 
     private static array $db = [
-        'FromBase' => 'Varchar(255)',
-        'FromQuerystring' => 'Varchar(255)',
-        'To' => 'Varchar(255)',
+        'FromBase' => 'Varchar(200)',
+        'FromQuerystring' => 'Varchar(200)',
+        'To' => 'Varchar(200)',
         'RedirectionType' => 'Enum("Internal,External,Asset", "Internal")',
         'RedirectCode' => 'Int',
     ];
@@ -386,5 +386,11 @@ class RedirectedURL extends DataObject implements PermissionProvider
         }
 
         return $linkToAsset->Link();
+    }
+
+
+    public function filterBestRedirectedURLMatch(): bool
+    {
+        return true;
     }
 }
