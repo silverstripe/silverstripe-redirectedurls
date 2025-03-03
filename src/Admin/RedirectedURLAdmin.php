@@ -64,7 +64,10 @@ class RedirectedURLAdmin extends ModelAdmin
 
     public function subsiteCMSShowInMenu()
     {
-        return Permission::check('ADMIN') || Permission::check('CMS_ACCESS_SilverStripe\RedirectedURLs\Admin\RedirectedURLAdmin');
+        return (
+            Permission::check('ADMIN') ||
+            Permission::check('CMS_ACCESS_SilverStripe\RedirectedURLs\Admin\RedirectedURLAdmin')
+        );
     }
 
 

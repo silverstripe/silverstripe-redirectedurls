@@ -46,7 +46,7 @@ class RedirectedURLSubsiteExtension extends Extension
             if ($subsiteID !== $this->owner->SubsiteID) {
                 return false;
             }
-        } else if ($subsiteID) {
+        } elseif ($subsiteID) {
             return false;
         }
     }
