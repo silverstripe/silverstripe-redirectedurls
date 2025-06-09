@@ -9,7 +9,7 @@ use SilverStripe\Core\Config\Configurable;
 use SilverStripe\Core\Convert;
 use SilverStripe\Core\Extensible;
 use SilverStripe\Core\Injector\Injectable;
-use SilverStripe\ORM\ArrayList;
+use SilverStripe\Model\List\ArrayList;
 use SilverStripe\RedirectedURLs\Model\RedirectedURL;
 use SilverStripe\RedirectedURLs\Support\Arr;
 use SilverStripe\RedirectedURLs\Support\StatusCode;

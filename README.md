@@ -21,13 +21,8 @@ redirection for a page that already exists on the site.
 
 ## Requirements
 
-* PHP `^8.1`
-* Silverstripe CMS `^5`
-
-Legacy:
-
-* Silverstripe CMS `^4`: `^2` tags
-* Silverstripe CMS `^3`: `^1` tags
+* PHP `^8.2`
+* Silverstripe CMS `^6`
 
 ## Installation
 

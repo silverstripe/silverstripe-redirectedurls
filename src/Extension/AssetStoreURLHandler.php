@@ -5,12 +5,12 @@ namespace SilverStripe\RedirectedURLs\Extension;
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\HTTPResponse;
 use SilverStripe\Core\Extension;
-use SilverStripe\RedirectedURLs\Model\RedirectedURL;
 use SilverStripe\RedirectedURLs\Service\RedirectedURLService;
 
 /**
  * This extension applies to FlysystemAssetStore, and ensures that an appropriate redirect response is returned when an
  * asset isn't found and the path matches a {@link RedirectedURL} object.
+ * @extends \SilverStripe\Core\Extension<static>
  */
 class AssetStoreURLHandler extends Extension
 {
@@ -29,7 +29,7 @@ class AssetStoreURLHandler extends Extension
         }
 
         // We are unable to progress if there is no current Controller
-        if (!Controller::has_curr()) {
+        if (!(Controller::curr() instanceof Controller)) {
             return;
         }
 

@@ -15,13 +15,19 @@
             "email": "sam@silverstripe.com"
         }
     ],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/3dgoo/silverstripe-display-logic"
+        }
+    ],
     "require": {
-        "php": "^8.1",
-        "silverstripe/cms": "^5",
-        "unclecheese/display-logic": "^3"
+        "php": "^8.3",
+        "silverstripe/cms": "^6",
+        "unclecheese/display-logic": "^4"
     },
     "require-dev": {
-        "silverstripe/recipe-testing": "^3",
+        "silverstripe/recipe-testing": "^4",
         "squizlabs/php_codesniffer": "^3"
     },
     "autoload": {
@@ -34,7 +40,8 @@
         "allow-plugins": {
             "composer/installers": true,
             "dealerdirect/phpcodesniffer-composer-installer": true,
-            "silverstripe/vendor-plugin": true
+            "silverstripe/vendor-plugin": true,
+            "silverstripe/recipe-plugin": true
         }
     },
     "extra": {
@@ -42,7 +49,7 @@
             "images"
         ],
         "branch-alias": {
-            "dev-main": "3.x-dev"
+            "dev-main": "4.x-dev"
         },
         "project-files-installed": [
             "behat.yml",
