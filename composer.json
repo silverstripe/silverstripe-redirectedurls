@@ -15,12 +15,6 @@
             "email": "sam@silverstripe.com"
         }
     ],
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/3dgoo/silverstripe-display-logic"
-        }
-    ],
     "require": {
         "php": "^8.3",
         "silverstripe/cms": "^6",

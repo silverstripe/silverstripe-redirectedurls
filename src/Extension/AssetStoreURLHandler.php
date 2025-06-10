@@ -29,7 +29,7 @@ class AssetStoreURLHandler extends Extension
         }
 
         // We are unable to progress if there is no current Controller
-        if (!(Controller::curr() instanceof Controller)) {
+        if (!Controller::curr()) {
             return;
         }
 
