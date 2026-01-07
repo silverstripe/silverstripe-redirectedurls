@@ -6,6 +6,7 @@ use SilverStripe\Admin\ModelAdmin;
 use SilverStripe\Dev\CsvBulkLoader;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\RedirectedURLs\Model\RedirectedURL;
+use SilverStripe\Security\Permission;
 
 /**
  * Provides CMS Administration of {@link: RedirectedURL} objects
@@ -58,5 +59,31 @@ class RedirectedURLAdmin extends ModelAdmin
         }
 
         return $fields;
+    }
+
+
+    public function subsiteCMSShowInMenu()
+    {
+        return (
+            Permission::check('ADMIN') ||
+            Permission::check('CMS_ACCESS_SilverStripe\RedirectedURLs\Admin\RedirectedURLAdmin')
+        );
+    }
+
+
+    public function getList()
+    {
+        $list = parent::getList();
+
+        if (class_exists('\SilverStripe\Subsites\Model\Subsite')) {
+            $subsiteId = \SilverStripe\Subsites\State\SubsiteState::singleton()->getSubsiteId();
+
+            $list = $list->filter('SubsiteID', [
+                -1,
+                $subsiteId
+            ]);
+        }
+
+        return $list;
     }
 }
