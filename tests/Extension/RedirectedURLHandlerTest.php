@@ -52,4 +52,40 @@ class RedirectedURLHandlerTest extends FunctionalTest
             $response->getHeader('Location')
         );
     }
+
+    public function testHandleURLRedirectionWithNonAsciiCharacters(): void
+    {
+        // Browsers send non-ASCII characters percent-encoded (upper-case hex), and the From base may have been
+        // entered either literally or encoded
+        $expected = [
+            'caf%C3%A9-menu' => 'redirect-literal-character',
+            'news/two-diploma%E2%80%99s-awarded' => 'redirect-literal-quote',
+            'th%C3%A9-encoded' => 'redirect-encoded-character',
+            'men%C3%BC/specials' => 'redirect-literal-wildcard',
+        ];
+
+        foreach ($expected as $url => $fixture) {
+            $redirect = $this->objFromFixture(RedirectedURL::class, $fixture);
+            $response = $this->get($url);
+
+            $this->assertEquals(301, $response->getStatusCode(), $url);
+            $this->assertEquals(
+                Director::absoluteURL($redirect->To),
+                $response->getHeader('Location'),
+                $url
+            );
+        }
+    }
+
+    public function testHandleURLRedirectionPrefersFromBaseAsRequested(): void
+    {
+        // When a From base exists both literally and encoded, the one in the form of the request wins
+        $redirect = $this->objFromFixture(RedirectedURL::class, 'redirect-dual-encoded');
+        $response = $this->get('dual-%C3%A9');
+
+        $this->assertEquals(
+            Director::absoluteURL($redirect->To),
+            $response->getHeader('Location')
+        );
+    }
 }

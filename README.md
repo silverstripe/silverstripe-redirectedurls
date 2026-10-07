@@ -53,6 +53,15 @@ From Querystring:  item=1
 To:  /about-us/item/1
 ```
 
+### URLs with special characters
+
+Browsers send non-ASCII characters in a URL percent-encoded: a visit to "/café-menu" arrives as "/caf%C3%A9-menu".
+A 'From Base' with such characters matches either way, so you can enter it as typed ("/café-menu") or encoded
+("/caf%c3%a9-menu"). If both forms exist as separate redirects, the one in the form of the request wins.
+
+Only non-ASCII characters are treated this way. Encoded ASCII characters, such as "%20" for a space or "%2F" for a
+slash, have to be entered exactly as they are requested.
+
 ## Importing
 
 1. Create a CSV file with the columns headings 'FromBase', 'FromQuerystring' and 'To' and enter your URL mappings.
