@@ -53,6 +53,35 @@ From Querystring:  item=1
 To:  /about-us/item/1
 ```
 
+### Redirecting a URL regardless of its querystring
+
+A redirect with a 'From Querystring' only matches requests that carry that querystring. Imported redirects often
+list several querystring variants of one old URL, all pointing at the same new page, while the bare URL is still
+requested (by search engines, for example) and returns a 404.
+
+You can let such requests fall back to those redirects:
+
+```yaml
+SilverStripe\RedirectedURLs\Service\RedirectedURLService:
+  frombase_fallback: true
+```
+
+With this enabled, when no redirect matches a request, the redirects for the same 'From Base' that have a
+'From Querystring' are used, but only if they all lead to the same URL with the same redirect code. If they lead
+to different places the request stays a 404, because there is no way to tell which one is meant. Exact matches and
+wildcard matches always take precedence, and the fallback only applies to an exact 'From Base' (not to wildcards).
+
+For example, with these redirects:
+
+```
+FromBase, FromQuerystring, To
+/products.php, print=1, /products
+/products.php, format=pdf, /products
+```
+
+"/products.php" and "/products.php?sort=name" are redirected to "/products". Add a third variant that points
+somewhere else and they return a 404 again.
+
 ## Importing
 
 1. Create a CSV file with the columns headings 'FromBase', 'FromQuerystring' and 'To' and enter your URL mappings.

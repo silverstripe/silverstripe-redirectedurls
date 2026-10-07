@@ -20,6 +20,18 @@ class RedirectedURLService implements RedirectedURLInterface
     use Configurable;
     use Injectable;
 
+    /**
+     * When no redirect matches the request, fall back to the redirects for the same From base that require a
+     * querystring, provided they all lead to one target (same link and same redirect code).
+     *
+     * This lets "/old-page" follow the redirects set up for "/old-page?print=1" and "/old-page?format=pdf" when
+     * they agree on where the content now lives. When they disagree there is no safe choice and the request stays
+     * a 404. Exact matches (with or without a querystring) and wildcard matches always take precedence.
+     *
+     * Off by default, because it changes which requests are redirected.
+     */
+    private static bool $frombase_fallback = false;
+
     public function findBestRedirectedURLMatch(HTTPRequest $request): ?RedirectedURL
     {
         $base = strtolower($request->getURL());
@@ -60,9 +72,9 @@ class RedirectedURLService implements RedirectedURLInterface
             }
         }
 
-        // If there are no potential matches, then we can exit early and return null
+        // If there are no potential matches, then the only remaining option is the From base fallback
         if ($listPotentials->count() === 0) {
-            return null;
+            return $this->findFromBaseFallbackMatch('/' . $SQL_base);
         }
 
         $matched = null;
@@ -95,8 +107,49 @@ class RedirectedURLService implements RedirectedURLInterface
             }
         }
 
-        // If we found a match, we return it - otherwise we return null to indicate that no match was found
-        return $matched;
+        // If we found a match, we return it - otherwise try the From base fallback, which returns null to
+        // indicate that no match was found
+        return $matched ?? $this->findFromBaseFallbackMatch('/' . $SQL_base);
+    }
+
+    /**
+     * Find the single target shared by all redirects for this From base that require a querystring.
+     *
+     * Only used when nothing else matched the request, and only when the frombase_fallback config is enabled.
+     * Returns null when there are no such redirects, or when they lead to more than one target.
+     */
+    protected function findFromBaseFallbackMatch(string $fromBase): ?RedirectedURL
+    {
+        if (!static::config()->get('frombase_fallback')) {
+            return null;
+        }
+
+        $potentials = RedirectedURL::get()
+            ->filter(['FromBase' => $fromBase])
+            ->exclude(['FromQuerystring' => [null, '']])
+            ->sort('ID');
+
+        $byTarget = [];
+
+        foreach ($potentials as $potential) {
+            // Apply the same extension filter as an exact match (e.g. a redirect that belongs to another subsite)
+            if (min($potential->invokeWithExtensions('filterBestRedirectedURLMatch')) === false) {
+                continue;
+            }
+
+            // A redirect whose target can't be resolved (e.g. a deleted page) has no target to agree on
+            $link = $potential->Link();
+
+            if (!$link) {
+                continue;
+            }
+
+            // Two variants only agree when they send the visitor to the same place with the same status code
+            $key = StatusCode::getRedirectCode($potential) . ' ' . rtrim($link, '/');
+            $byTarget[$key] ??= $potential;
+        }
+
+        return count($byTarget) === 1 ? reset($byTarget) : null;
     }
 
     public function getResponse(RedirectedURL $redirect): HTTPResponse

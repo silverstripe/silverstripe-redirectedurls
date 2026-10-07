@@ -12,3 +12,44 @@ SilverStripe\RedirectedURLs\Model\RedirectedURL:
   redirect-root-extension:
     FromBase: /some_old_page.html
     To: /newpage
+  redirect-fallback-agree-print:
+    FromBase: /fallback-agree
+    FromQuerystring: print=1
+    To: /fallback-target
+  redirect-fallback-agree-format:
+    FromBase: /fallback-agree
+    FromQuerystring: format=pdf
+    To: /fallback-target/
+  redirect-fallback-disagree-print:
+    FromBase: /fallback-disagree
+    FromQuerystring: print=1
+    To: /fallback-target
+  redirect-fallback-disagree-format:
+    FromBase: /fallback-disagree
+    FromQuerystring: format=pdf
+    To: /other-target
+  redirect-fallback-codes-permanent:
+    FromBase: /fallback-codes
+    FromQuerystring: print=1
+    To: /fallback-target
+    RedirectCode: 301
+  redirect-fallback-codes-temporary:
+    FromBase: /fallback-codes
+    FromQuerystring: format=pdf
+    To: /fallback-target
+    RedirectCode: 302
+  redirect-fallback-precedence-query:
+    FromBase: /fallback-precedence
+    FromQuerystring: print=1
+    To: /print-target
+  redirect-fallback-precedence-plain:
+    FromBase: /fallback-precedence
+    To: /plain-target
+  redirect-fallback-filtered-print:
+    FromBase: /fallback-filtered
+    FromQuerystring: print=1
+    To: /fallback-target
+  redirect-fallback-filtered-hidden:
+    FromBase: /fallback-filtered
+    FromQuerystring: format=pdf
+    To: /hidden-target
