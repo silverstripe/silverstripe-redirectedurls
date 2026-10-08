@@ -65,6 +65,9 @@ slash, have to be entered exactly as they are requested.
 ## Importing
 
 1. Create a CSV file with the columns headings 'FromBase', 'FromQuerystring' and 'To' and enter your URL mappings.
+   Column headings must match exactly, so don't put spaces after the commas. Optionally add a 'RedirectionType'
+   column ('Internal' or 'External'). If 'To' is the URL of a page on your site, the redirect will be linked to that
+   page, otherwise it's imported as an External redirect.
 2. Click 'Redirects' in the main menu of the CMS.
 3. In the 'Import' section click 'Choose file', select your CSV file and then click 'Import from CSV'.
 4. Optionally select the 'Replace data' option if you want to replace the RedirectedURL database table contents with the imported data.
@@ -72,11 +75,11 @@ slash, have to be entered exactly as they are requested.
 CSV Importer, example file format:
 
 ```
-FromBase, FromQuerystring, To
-/about-us/index.html, item=1, /about/item/1
-/example/no-querystring.html, ,/example/no-querystring/
-/example/two-queryparams.html, foo=1&bar=2, /example/foo/1/bar/2
-/about/*, ,/about-us
+FromBase,FromQuerystring,To
+/about-us/index.html,item=1,/about/item/1
+/example/no-querystring.html,,/example/no-querystring/
+/example/two-queryparams.html,foo=1&bar=2,/example/foo/1/bar/2
+/about/*,,/about-us
 ```
 
 ## Allowing redirects from Asset URLs
