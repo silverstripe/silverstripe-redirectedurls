@@ -386,8 +386,9 @@ class RedirectedURL extends DataObject implements PermissionProvider
     }
 
     /**
-     * A record that has a $To value but no linked page (e.g. legacy data, or a CSV import without a RedirectionType
-     * column) behaves as an External redirect in {@link Link()}, so make sure it's flagged as one.
+     * A record that has a $To value but no linked page (e.g. legacy data, or a CSV import) is linked to the page its
+     * $To value points at. If there is no such page, it behaves as an External redirect in {@link Link()}, so make
+     * sure it's flagged as one.
      */
     private function ensureRedirectionTypeValidity(): void
     {
@@ -395,9 +396,21 @@ class RedirectedURL extends DataObject implements PermissionProvider
             return;
         }
 
-        if (!$this->RedirectionType || $this->RedirectionType === self::REDIRECTION_TYPE_INTERNAL) {
-            $this->RedirectionType = self::REDIRECTION_TYPE_EXTERNAL;
+        if ($this->RedirectionType && $this->RedirectionType !== self::REDIRECTION_TYPE_INTERNAL) {
+            return;
         }
+
+        // Only plain paths can be represented by a page link, otherwise the querystring or fragment would be lost
+        $page = strpbrk($this->To, '?#*') === false ? SiteTree::get_by_link($this->To) : null;
+
+        if ($page) {
+            $this->LinkToID = $page->ID;
+            $this->RedirectionType = self::REDIRECTION_TYPE_INTERNAL;
+
+            return;
+        }
+
+        $this->RedirectionType = self::REDIRECTION_TYPE_EXTERNAL;
     }
 
     private function getLinkToLink(): ?string
