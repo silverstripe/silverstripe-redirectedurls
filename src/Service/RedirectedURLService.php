@@ -12,6 +12,7 @@ use SilverStripe\Core\Injector\Injectable;
 use SilverStripe\Model\List\ArrayList;
 use SilverStripe\RedirectedURLs\Model\RedirectedURL;
 use SilverStripe\RedirectedURLs\Support\Arr;
+use SilverStripe\RedirectedURLs\Support\PathEncoding;
 use SilverStripe\RedirectedURLs\Support\StatusCode;
 
 class RedirectedURLService implements RedirectedURLInterface
@@ -37,21 +38,27 @@ class RedirectedURLService implements RedirectedURLInterface
         $base = strtolower($request->getURL());
         $getVars = Arr::toLowercase($request->getVars());
 
-        // Find all the RedirectedURL objects where the base URL matches.
-        // Assumes the base url has no trailing slash.
-        $SQL_base = Convert::raw2sql(rtrim($base, '/'));
-
-        $potentials = RedirectedURL::get()->filter(['FromBase' => '/' . $SQL_base])->sort('FromQuerystring DESC');
-
         /** @var ArrayList|RedirectedURL[] $listPotentials */
         $listPotentials = new ArrayList();
 
-        foreach ($potentials as $potential) {
-            if (min($potential->invokeWithExtensions('filterBestRedirectedURLMatch')) === false) {
-                continue;
-            }
+        // Find all the RedirectedURL objects where the base URL matches.
+        // Assumes the base url has no trailing slash.
+        // A From base with non-ASCII characters may have been entered literally or percent-encoded, so we look for
+        // each form. The path as requested comes first, so a redirect that matches it keeps precedence.
+        foreach (PathEncoding::getVariants(rtrim($base, '/')) as $baseVariant) {
+            $SQL_base = Convert::raw2sql($baseVariant);
 
-            $listPotentials->push($potential);
+            $potentials = RedirectedURL::get()
+                ->filter(['FromBase' => '/' . $SQL_base])
+                ->sort('FromQuerystring DESC');
+
+            foreach ($potentials as $potential) {
+                if (min($potential->invokeWithExtensions('filterBestRedirectedURLMatch')) === false) {
+                    continue;
+                }
+
+                $listPotentials->push($potential);
+            }
         }
 
         // Find any matching FromBase elements terminating in a wildcard /*
@@ -59,22 +66,27 @@ class RedirectedURLService implements RedirectedURLInterface
 
         for ($pos = count($baseParts) - 1; $pos >= 0; $pos--) {
             $baseStr = implode('/', array_slice($baseParts, 0, $pos));
-            $basePart = Convert::raw2sql($baseStr . '/*');
-            $basePots = RedirectedURL::get()->filter(['FromBase' => '/' . $basePart])->sort('FromQuerystring DESC');
 
-            foreach ($basePots as $basePot) {
-                // If the To URL ends in a wildcard /*, append the remaining request URL elements
-                if ($basePot->RedirectionType === 'External' && substr($basePot->To, -2) === '/*') {
-                    $basePot->To = substr($basePot->To, 0, -2) . substr($base, strlen($baseStr));
+            foreach (PathEncoding::getVariants($baseStr) as $baseStrVariant) {
+                $basePart = Convert::raw2sql($baseStrVariant . '/*');
+                $basePots = RedirectedURL::get()
+                    ->filter(['FromBase' => '/' . $basePart])
+                    ->sort('FromQuerystring DESC');
+
+                foreach ($basePots as $basePot) {
+                    // If the To URL ends in a wildcard /*, append the remaining request URL elements
+                    if ($basePot->RedirectionType === 'External' && substr($basePot->To, -2) === '/*') {
+                        $basePot->To = substr($basePot->To, 0, -2) . substr($base, strlen($baseStr));
+                    }
+
+                    $listPotentials->push($basePot);
                 }
-
-                $listPotentials->push($basePot);
             }
         }
 
         // If there are no potential matches, then the only remaining option is the From base fallback
         if ($listPotentials->count() === 0) {
-            return $this->findFromBaseFallbackMatch('/' . $SQL_base);
+            return $this->findFromBaseFallbackMatch(rtrim($base, '/'));
         }
 
         $matched = null;
@@ -109,7 +121,7 @@ class RedirectedURLService implements RedirectedURLInterface
 
         // If we found a match, we return it - otherwise try the From base fallback, which returns null to
         // indicate that no match was found
-        return $matched ?? $this->findFromBaseFallbackMatch('/' . $SQL_base);
+        return $matched ?? $this->findFromBaseFallbackMatch(rtrim($base, '/'));
     }
 
     /**
@@ -117,15 +129,20 @@ class RedirectedURLService implements RedirectedURLInterface
      *
      * Only used when nothing else matched the request, and only when the frombase_fallback config is enabled.
      * Returns null when there are no such redirects, or when they lead to more than one target.
+     *
+     * @param string $base The request path, lower-cased and without leading or trailing slashes
      */
-    protected function findFromBaseFallbackMatch(string $fromBase): ?RedirectedURL
+    protected function findFromBaseFallbackMatch(string $base): ?RedirectedURL
     {
         if (!static::config()->get('frombase_fallback')) {
             return null;
         }
 
+        // The From base may have been entered literally or percent-encoded, and every form counts as the same base
+        $fromBases = array_map(fn (string $variant): string => '/' . $variant, PathEncoding::getVariants($base));
+
         $potentials = RedirectedURL::get()
-            ->filter(['FromBase' => $fromBase])
+            ->filter(['FromBase' => $fromBases])
             ->exclude(['FromQuerystring' => [null, '']])
             ->sort('ID');
 

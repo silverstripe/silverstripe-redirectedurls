@@ -13,6 +13,7 @@ use SilverStripe\Forms\OptionsetField;
 use SilverStripe\Forms\TextField;
 use SilverStripe\Forms\TreeDropdownField;
 use SilverStripe\ORM\DataObject;
+use SilverStripe\ORM\DB;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\Permission;
 use SilverStripe\Security\PermissionProvider;
@@ -167,6 +168,28 @@ class RedirectedURL extends DataObject implements PermissionProvider
 
         $this->ensureFromBaseValidity($this->FromBase);
         $this->ensureFromQuerystringValidity($this->FromQuerystring);
+        $this->ensureRedirectionTypeValidity();
+    }
+
+    public function requireDefaultRecords()
+    {
+        parent::requireDefaultRecords();
+
+        // Records created before RedirectionType existed (or imported without it) only have a $To value, but were
+        // given the "Internal" default. Flag these as External so the CMS reflects what they actually do.
+        DB::query(sprintf(
+            'UPDATE "%1$s" SET "RedirectionType" = \'%2$s\''
+            . ' WHERE ("RedirectionType" = \'%3$s\' OR "RedirectionType" IS NULL)'
+            . ' AND ("LinkToID" IS NULL OR "LinkToID" = 0)'
+            . ' AND "To" IS NOT NULL AND "To" != \'\'',
+            DataObject::getSchema()->tableName(static::class),
+            self::REDIRECTION_TYPE_EXTERNAL,
+            self::REDIRECTION_TYPE_INTERNAL
+        ));
+
+        if (DB::affected_rows() > 0) {
+            DB::alteration_message('Updated legacy redirects to RedirectionType "External"', 'changed');
+        }
     }
 
     protected function getCodes(): array
@@ -208,8 +231,14 @@ class RedirectedURL extends DataObject implements PermissionProvider
      *
      * @param string $from The $From URL to search
      */
-    public function findByFrom(string $from): ?static
+    public function findByFrom(?string $from): ?static
     {
+        $from = trim($from ?? '');
+
+        if ($from === '') {
+            return null;
+        }
+
         if ($from[0] !== '/') {
             $from = "/$from";
         }
@@ -354,6 +383,34 @@ class RedirectedURL extends DataObject implements PermissionProvider
 
         $fromQuerystring = rtrim($fromQuerystring, '?');
         $this->FromQuerystring = strtolower($fromQuerystring);
+    }
+
+    /**
+     * A record that has a $To value but no linked page (e.g. legacy data, or a CSV import) is linked to the page its
+     * $To value points at. If there is no such page, it behaves as an External redirect in {@link Link()}, so make
+     * sure it's flagged as one.
+     */
+    private function ensureRedirectionTypeValidity(): void
+    {
+        if (!$this->To || $this->LinkToID) {
+            return;
+        }
+
+        if ($this->RedirectionType && $this->RedirectionType !== self::REDIRECTION_TYPE_INTERNAL) {
+            return;
+        }
+
+        // Only plain paths can be represented by a page link, otherwise the querystring or fragment would be lost
+        $page = strpbrk($this->To, '?#*') === false ? SiteTree::get_by_link($this->To) : null;
+
+        if ($page) {
+            $this->LinkToID = $page->ID;
+            $this->RedirectionType = self::REDIRECTION_TYPE_INTERNAL;
+
+            return;
+        }
+
+        $this->RedirectionType = self::REDIRECTION_TYPE_EXTERNAL;
     }
 
     private function getLinkToLink(): ?string

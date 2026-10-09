@@ -4,6 +4,7 @@ namespace SilverStripe\RedirectedURLs\Tests\Model;
 
 use SilverStripe\Assets\File;
 use SilverStripe\Dev\SapphireTest;
+use SilverStripe\ORM\DB;
 use SilverStripe\RedirectedURLs\Model\RedirectedURL;
 
 class RedirectedURLTest extends SapphireTest
@@ -106,6 +107,45 @@ class RedirectedURLTest extends SapphireTest
         $redirect = $this->model->findByFrom('/test/no-exists');
 
         $this->assertNull($redirect);
+    }
+
+    public function testFindByFromEmpty(): void
+    {
+        $this->assertNull($this->model->findByFrom(''));
+        $this->assertNull($this->model->findByFrom(null));
+    }
+
+    public function testRedirectionTypeInferredFromTo(): void
+    {
+        // redirect1 only has a $To value (as legacy data and minimal CSV imports do)
+        $redirect = $this->objFromFixture(RedirectedURL::class, 'redirect1');
+
+        $this->assertEquals('External', $redirect->RedirectionType);
+        $this->assertEquals('/test/target', $redirect->Link());
+
+        // An Internal redirect with a linked page is left alone
+        $redirect = $this->objFromFixture(RedirectedURL::class, 'redirect3');
+
+        $this->assertEquals('Internal', $redirect->RedirectionType);
+    }
+
+    public function testRequireDefaultRecordsMigratesLegacyRedirects(): void
+    {
+        $redirect = $this->objFromFixture(RedirectedURL::class, 'redirect1');
+
+        // Simulate data from before RedirectionType existed, bypassing onBeforeWrite()
+        DB::prepared_query(
+            'UPDATE "RedirectedURL" SET "RedirectionType" = ? WHERE "ID" = ?',
+            ['Internal', $redirect->ID]
+        );
+
+        $this->model->requireDefaultRecords();
+
+        $this->assertEquals('External', RedirectedURL::get()->byID($redirect->ID)->RedirectionType);
+        $this->assertEquals(
+            'Internal',
+            $this->objFromFixture(RedirectedURL::class, 'redirect3')->RedirectionType
+        );
     }
 
     public function testLinkTo(): void

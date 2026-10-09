@@ -82,9 +82,21 @@ FromBase, FromQuerystring, To
 "/products.php" and "/products.php?sort=name" are redirected to "/products". Add a third variant that points
 somewhere else and they return a 404 again.
 
+### URLs with special characters
+
+Browsers send non-ASCII characters in a URL percent-encoded: a visit to "/café-menu" arrives as "/caf%C3%A9-menu".
+A 'From Base' with such characters matches either way, so you can enter it as typed ("/café-menu") or encoded
+("/caf%c3%a9-menu"). If both forms exist as separate redirects, the one in the form of the request wins.
+
+Only non-ASCII characters are treated this way. Encoded ASCII characters, such as "%20" for a space or "%2F" for a
+slash, have to be entered exactly as they are requested.
+
 ## Importing
 
 1. Create a CSV file with the columns headings 'FromBase', 'FromQuerystring' and 'To' and enter your URL mappings.
+   Column headings must match exactly, so don't put spaces after the commas. Optionally add a 'RedirectionType'
+   column ('Internal' or 'External'). If 'To' is the URL of a page on your site, the redirect will be linked to that
+   page, otherwise it's imported as an External redirect.
 2. Click 'Redirects' in the main menu of the CMS.
 3. In the 'Import' section click 'Choose file', select your CSV file and then click 'Import from CSV'.
 4. Optionally select the 'Replace data' option if you want to replace the RedirectedURL database table contents with the imported data.
@@ -92,11 +104,11 @@ somewhere else and they return a 404 again.
 CSV Importer, example file format:
 
 ```
-FromBase, FromQuerystring, To
-/about-us/index.html, item=1, /about/item/1
-/example/no-querystring.html, ,/example/no-querystring/
-/example/two-queryparams.html, foo=1&bar=2, /example/foo/1/bar/2
-/about/*, ,/about-us
+FromBase,FromQuerystring,To
+/about-us/index.html,item=1,/about/item/1
+/example/no-querystring.html,,/example/no-querystring/
+/example/two-queryparams.html,foo=1&bar=2,/example/foo/1/bar/2
+/about/*,,/about-us
 ```
 
 ## Allowing redirects from Asset URLs

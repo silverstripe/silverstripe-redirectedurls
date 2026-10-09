@@ -53,3 +53,37 @@ SilverStripe\RedirectedURLs\Model\RedirectedURL:
     FromBase: /fallback-filtered
     FromQuerystring: format=pdf
     To: /hidden-target
+  redirect-literal-character:
+    FromBase: /café-menu
+    To: /cafe-menu
+  redirect-literal-quote:
+    FromBase: /news/two-diploma’s-awarded
+    To: /news/two-diplomas-awarded
+  redirect-encoded-character:
+    FromBase: /th%c3%a9-encoded
+    To: /the-encoded
+  redirect-literal-wildcard:
+    FromBase: /menü/*
+    To: /menu
+  redirect-dual-literal:
+    FromBase: /dual-é
+    To: /dual-literal
+  redirect-dual-encoded:
+    FromBase: /dual-%c3%a9
+    To: /dual-encoded
+  redirect-fallback-encoded-print:
+    FromBase: /fallback-café
+    FromQuerystring: print=1
+    To: /fallback-target
+  redirect-fallback-encoded-format:
+    FromBase: /fallback-caf%c3%a9
+    FromQuerystring: format=pdf
+    To: /fallback-target
+  redirect-fallback-encoded-disagree-print:
+    FromBase: /fallback-thé
+    FromQuerystring: print=1
+    To: /fallback-target
+  redirect-fallback-encoded-disagree-format:
+    FromBase: /fallback-th%c3%a9
+    FromQuerystring: format=pdf
+    To: /other-target
